@@ -933,6 +933,36 @@
       color: var(--color-primary);
       text-decoration: none;
     }
+
+    /* Mouse tracking glow effect */
+    .viz-card, .project-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .viz-card::after, .project-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        300px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(0, 245, 255, 0.05),
+        transparent 80%
+      );
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .viz-card:hover::after, .project-card:hover::after {
+      opacity: 1;
+    }
+    .viz-card > *, .project-card > * {
+      position: relative;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
@@ -1368,6 +1398,10 @@
   <footer>
     <p>Maintained in code & published to GitHub Pages. Profile: <a href="https://github.com/kalyanace44" target="_blank">kalyanace44</a></p>
   </footer>
+
+  <!-- GSAP & ScrollTrigger Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <!-- Interactivity Javascript Logic -->
   <script>
@@ -1956,6 +1990,81 @@ spec:
       document.getElementById("project-drawer").classList.remove("open");
       document.getElementById("drawer-overlay").classList.remove("active");
     }
+
+    // --- Modern Web Interactions & Animations ---
+    
+    // 1. Mouse-Tracking Card Glow
+    document.querySelectorAll('.viz-card, .project-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    // 2. Load GSAP ScrollTrigger Animations
+    window.addEventListener('DOMContentLoaded', () => {
+      // Register ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero load animations
+      gsap.from(".hero-section h2", {
+        opacity: 0,
+        y: 40,
+        duration: 1,
+        ease: "power3.out"
+      });
+      
+      gsap.from(".hero-section p", {
+        opacity: 0,
+        y: 20,
+        duration: 1,
+        delay: 0.3,
+        ease: "power3.out"
+      });
+      
+      gsap.from("header", {
+        opacity: 0,
+        y: -20,
+        duration: 0.8,
+        delay: 0.5,
+        ease: "power2.out"
+      });
+
+      // Scroll reveals for sections
+      const sections = document.querySelectorAll("main > section");
+      sections.forEach((sec) => {
+        if (sec.classList.contains("hero-section")) return;
+        
+        gsap.from(sec, {
+          scrollTrigger: {
+            trigger: sec,
+            start: "top 88%",
+            toggleActions: "play none none none"
+          },
+          opacity: 0,
+          y: 40,
+          duration: 0.8,
+          ease: "power2.out"
+        });
+      });
+
+      // Staggered reveals for timeline items
+      gsap.from(".timeline-item", {
+        scrollTrigger: {
+          trigger: ".timeline",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        opacity: 0,
+        y: 40,
+        stagger: 0.2,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+    });
   </script>
 </body>
 </html>
