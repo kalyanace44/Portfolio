@@ -46,33 +46,33 @@
       --theme-transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease;
     }
 
-    /* Light Theme Overrides */
+    /* Light Theme Overrides (Unseen Studio Inspired) */
     .light-theme {
-      --bg-dark: #f8fafc;
-      --bg-panel: rgba(255, 255, 255, 0.85);
-      --bg-card: rgba(241, 245, 249, 0.65);
-      --border-color: rgba(15, 23, 42, 0.08);
-      --border-glow: rgba(14, 165, 233, 0.15);
+      --bg-dark: #f4eeeb;             /* Soft Warm Blush Sand */
+      --bg-panel: rgba(255, 255, 255, 0.85); /* Clean Translucent White */
+      --bg-card: rgba(255, 255, 255, 0.45);
+      --border-color: rgba(110, 96, 92, 0.1); /* Soft Warm Charcoal border */
+      --border-glow: rgba(212, 138, 151, 0.2);
       
-      --color-primary: #0284c7;       /* Cyber Slate Blue */
-      --color-secondary: #7c3aed;     /* Indigo Purple */
-      --color-success: #059669;       /* Darker Emerald */
-      --color-warning: #d97706;       /* Darker Amber */
-      --color-error: #dc2626;         /* Darker Red */
-      --color-text: #0f172a;          /* Slate 900 */
-      --color-text-muted: #475569;    /* Slate 600 */
+      --color-primary: #000000;       /* Bold Signature Black */
+      --color-secondary: #d48a97;     /* Delicate Unseen Blush Rose */
+      --color-success: #10b981;       
+      --color-warning: #d97706;       
+      --color-error: #dc2626;         
+      --color-text: #1a1a1a;          /* Rich Charcoal Black */
+      --color-text-muted: #6e605c;    /* Warm Earthy Slate */
       
-      --glow-cyan: 0 0 15px rgba(2, 132, 199, 0.15);
-      --glow-purple: 0 0 15px rgba(124, 58, 237, 0.15);
+      --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.1);
+      --glow-purple: 0 0 15px rgba(212, 138, 151, 0.2);
       --glow-red: 0 0 15px rgba(220, 38, 38, 0.15);
 
-      --grid-color: rgba(2, 132, 199, 0.045);
-      --glow-color-1: rgba(2, 132, 199, 0.08);
-      --glow-color-2: rgba(124, 58, 237, 0.08);
-      --bg-header: rgba(248, 250, 252, 0.85);
-      --bg-diagram: #f1f5f9;
-      --color-diagram-text: #0f172a;
-      --cursor-ring-color: rgba(2, 132, 199, 0.3);
+      --grid-color: rgba(212, 138, 151, 0.05); /* Delicate rose-gold grid overlay */
+      --glow-color-1: rgba(212, 138, 151, 0.09); /* Warm blush background glow */
+      --glow-color-2: rgba(0, 0, 0, 0.03);
+      --bg-header: rgba(244, 238, 235, 0.85);
+      --bg-diagram: #ebdcd7;          /* Soft blush backdrop for architecture diagrams */
+      --color-diagram-text: #1a1a1a;
+      --cursor-ring-color: rgba(212, 138, 151, 0.45);
     }
 
     * {
@@ -2372,7 +2372,7 @@ spec:
     
     function getParticleColor(alpha) {
       if (document.documentElement.classList.contains('light-theme')) {
-        return `rgba(2, 132, 199, ${alpha})`;
+        return `rgba(212, 138, 151, ${alpha})`;
       } else {
         return `rgba(0, 245, 255, ${alpha})`;
       }
