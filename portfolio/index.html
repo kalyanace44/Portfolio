@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E Kalyan | Senior DevOps & Platform Engineer Portfolio</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Premium Cyber-Obsidian Design Tokens */
+    :root {
+      --bg-dark: #05070f;
+      --bg-panel: rgba(10, 15, 28, 0.8);
+      --bg-card: rgba(20, 27, 47, 0.5);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --border-glow: rgba(0, 245, 255, 0.1);
+      
+      --color-primary: #00f5ff;       /* Neon Cyan */
+      --color-secondary: #9d4edd;     /* Purple */
+      --color-success: #10b981;       /* Emerald Green */
+      --color-warning: #f59e0b;       /* Amber Gold */
+      --color-error: #ef4444;         /* Neon Red */
+      --color-text: #f3f4f6;
+      --color-text-muted: #8b9bb4;
+      
+      --font-outfit: 'Outfit', sans-serif;
+      --font-inter: 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      
+      --glow-cyan: 0 0 15px rgba(0, 245, 255, 0.25);
+      --glow-purple: 0 0 15px rgba(168, 85, 247, 0.25);
+      --glow-red: 0 0 15px rgba(239, 68, 68, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-primary);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--color-text);
+      font-family: var(--font-inter);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Grid overlay background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(to right, rgba(0, 245, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 245, 255, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Floating radial gradients */
+    .bg-glow-1 {
+      position: absolute;
+      top: 10%;
+      left: 15%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.05) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: 20%;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Navigation Header */
+    header {
+      background: rgba(5, 7, 15, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.25rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-group h1 {
+      font-family: var(--font-outfit);
+      font-weight: 900;
+      font-size: 1.75rem;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .social-btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .social-btn:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-cyan);
+      background: rgba(0, 245, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .live-region-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+    }
+
+    .status-ping {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--color-success);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5rem;
+    }
+
+    /* Hero Headline */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 900px;
+      position: relative;
+    }
+
+    .hero-section h2 {
+      font-family: var(--font-outfit);
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+    }
+
+    .hero-section p {
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      font-weight: 300;
+    }
+
+    .highlight {
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Section Header Custom Style */
+    .section-title {
+      font-family: var(--font-outfit);
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-color) 0%, transparent 100%);
+    }
+
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-primary);
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 245, 255, 0.05);
+    }
+
+    /* DevOps Dashboard Panel */
+    .dashboard-panel {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1000px) {
+      .dashboard-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    /* Active Failover Simulator Panel */
+    .simulator-card {
+      border-color: rgba(168, 85, 247, 0.2);
+      background: linear-gradient(135deg, rgba(10, 15, 28, 0.8) 0%, rgba(20, 10, 35, 0.6) 100%);
+    }
+
+    .simulator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .simulator-badge {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--color-error);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .failover-trigger-btn {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border: none;
+      color: #fff;
+      font-family: var(--font-outfit);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+      transition: all 0.3s;
+    }
+
+    .failover-trigger-btn:hover {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+      transform: translateY(-2px);
+    }
+
+    /* Dial Metrics visualization */
+    .metrics-dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .metric-gauge {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .metric-gauge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--gauge-color, var(--color-primary));
+    }
+
+    .gauge-title {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .gauge-value {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-text);
+      display: flex;
+      align-items: baseline;
+      gap: 0.15rem;
+    }
+
+    .gauge-unit {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+
+    .gauge-status {
+      font-size: 0.75rem;
+      color: var(--gauge-status-color, var(--color-success));
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Command Shell Terminal */
+    .shell-container {
+      background: #02040a;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #38bdf8;
+      display: flex;
+      flex-direction: column;
+      height: 400px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 20px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .shell-header {
+      background: rgba(13, 18, 30, 0.9);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shell-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .shell-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .shell-body {
+      flex: 1;
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      scroll-behavior: smooth;
+      line-height: 1.4;
+    }
+
+    .shell-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--color-primary);
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 0.75rem 1.25rem;
+      background: #02040a;
+    }
+
+    .shell-prompt-label {
+      font-weight: bold;
+    }
+
+    .shell-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      flex: 1;
+    }
+
+    /* Interactive Visualizers Grid */
+    .viz-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .viz-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      @media (max-width: 500px) {
+        .viz-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    .viz-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .viz-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-cyan);
+      background: rgba(0, 245, 255, 0.02);
+    }
+
+    .viz-icon {
+      font-size: 1.75rem;
+      color: var(--color-primary);
+    }
+
+    .viz-title {
+      font-family: var(--font-outfit);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .viz-desc {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+      flex: 1;
+    }
+
+    .viz-action {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Advanced Project Grid Layout */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .project-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0, 245, 255, 0.25);
+      box-shadow: 0 15px 30px rgba(0, 245, 255, 0.05);
+    }
+
+    .project-card:hover::before {
+      opacity: 1;
+    }
+
+    .project-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .project-type-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--color-secondary);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(168, 85, 247, 0.05);
+    }
+
+    .project-title {
+      font-family: var(--font-outfit);
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .project-desc {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+      flex: 1;
+    }
+
+    .project-action-btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    /* Career Interactive Timeline */
+    .timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 10px;
+      bottom: 10px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--color-primary) 0%, var(--color-secondary) 50%, var(--border-color) 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -2rem;
+      top: 5px;
+      width: 15px;
+      height: 15px;
+      background: var(--bg-dark);
+      border: 3px solid var(--color-primary);
+      border-radius: 50%;
+      transition: all 0.3s;
+      z-index: 5;
+    }
+
+    .timeline-item:hover .timeline-dot {
+      background: var(--color-primary);
+      box-shadow: var(--glow-cyan);
+      transform: scale(1.2);
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .timeline-title {
+      font-family: var(--font-outfit);
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .timeline-company {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    .timeline-date {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .timeline-content {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.3s;
+    }
+
+    .timeline-item:hover .timeline-content {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .timeline-bullets {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    .timeline-bullets li {
+      position: relative;
+      padding-left: 1.25rem;
+    }
+
+    .timeline-bullets li::before {
+      content: '▹';
+      position: absolute;
+      left: 0;
+      color: var(--color-primary);
+    }
+
+    /* Core Competencies Visual Grid */
+    .skills-block {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .skills-block {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .skills-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .skills-group-title {
+      font-family: var(--font-outfit);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--color-text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .skills-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .badge-tag {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--color-text);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.775rem;
+      font-family: var(--font-mono);
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .badge-tag.highlight-skill {
+      border-color: var(--color-primary);
+      background: rgba(0, 245, 255, 0.05);
+      color: var(--color-primary);
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
+    }
+
+    /* Dynamic Certifications Grid */
+    .certs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .certs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cert-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cert-icon {
+      font-size: 1.5rem;
+      color: var(--color-warning);
+    }
+
+    .cert-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .cert-name {
+      font-family: var(--font-outfit);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .cert-org {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    /* Case Study Drawer Slider */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 7, 15, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .drawer-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .project-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 580px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(24px);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -15px 0 40px rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+      .project-drawer {
+        width: 100%;
+        padding: 2rem;
+      }
+    }
+
+    .project-drawer.open {
+      transform: translateX(0);
+    }
+
+    .close-btn {
+      align-self: flex-end;
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+      color: var(--color-text);
+    }
+
+    .drawer-header-title {
+      font-family: var(--font-outfit);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--color-primary);
+    }
+
+    .drawer-sec-title {
+      font-family: var(--font-outfit);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--color-text-muted);
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.25rem;
+    }
+
+    .diagram-box {
+      background: #02040a;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .diagram-svg {
+      width: 100%;
+      height: auto;
+      max-height: 180px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 3rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      margin-top: auto;
+    }
+
+    footer a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Radial Glows -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-group">
+      <h1>E Kalyan</h1>
+      <a href="https://github.com/kalyanace44" class="github-badge" target="_blank">github/kalyanace44</a>
+    </div>
+    <div class="header-links">
+      <a href="https://linkedin.com/in/ekalyan" class="social-btn" target="_blank">linkedin.com/in/ekalyan</a>
+      <div class="live-region-badge">
+        <div class="status-ping" id="platform-status-dot"></div>
+        <span id="platform-status-text">Stack: ap-south-1 (Mumbai)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Content -->
+  <main>
+    
+    <!-- Hero Header -->
+    <section class="hero-section">
+      <h2>I design, automate, and orchestrate <br><span class="highlight">production cloud platforms.</span></h2>
+      <p>
+        Senior DevOps & Platform Engineer and Multi-Cloud Architect with 5+ years of experience. Expert in standardizing Infrastructure as Code, optimizing container compute nodes, and structuring secure PCI-DSS compliant environments. I treat deployment systems as high-availability production code.
+      </p>
+    </section>
+
+    <!-- DevOps Simulation Dashboard & Terminal -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <span>Infrastructure Telemetry & Diagnostics</span>
+      </div>
+      
+      <div class="dashboard-panel">
+        
+        <!-- Telemetry Simulator Panel -->
+        <div class="panel-card simulator-card" id="simulation-panel">
+          <div class="simulator-header">
+            <div class="panel-title" style="color: #fff;">
+              <span>⚡ Cloud Cluster Telemetry</span>
+            </div>
+            <div class="simulator-badge" id="alert-state-badge">
+              <span class="status-ping" style="background-color: var(--color-success); box-shadow: 0 0 10px var(--color-success);" id="simulator-ping-dot"></span>
+              <span id="simulator-ping-text">NOMINAL STATE</span>
+            </div>
+          </div>
+
+          <!-- Dials Metrics -->
+          <div class="metrics-dashboard">
+            <!-- Metric 1 -->
+            <div class="metric-gauge" id="gauge-uptime" style="--gauge-color: var(--color-success); --gauge-status-color: var(--color-success);">
+              <span class="gauge-title">SYS Uptime</span>
+              <span class="gauge-value" id="gauge-val-uptime">99.99<span class="gauge-unit">%</span></span>
+              <span class="gauge-status" id="gauge-stat-uptime">✓ SLA MET</span>
+            </div>
+            <!-- Metric 2 -->
+            <div class="metric-gauge" id="gauge-region" style="--gauge-color: var(--color-primary); --gauge-status-color: var(--color-primary);">
+              <span class="gauge-title">ACTIVE REGION</span>
+              <span class="gauge-value" id="gauge-val-region" style="font-size: 1.25rem; padding: 0.35rem 0;">MUMBAI</span>
+              <span class="gauge-status" id="gauge-stat-region">● AP-SOUTH-1</span>
+            </div>
+            <!-- Metric 3 -->
+            <div class="metric-gauge" id="gauge-load" style="--gauge-color: var(--color-primary); --gauge-status-color: var(--color-success);">
+              <span class="gauge-title">CNI ROUTE LOAD</span>
+              <span class="gauge-value" id="gauge-val-load">12<span class="gauge-unit">ms</span></span>
+              <span class="gauge-status" id="gauge-stat-load">● HEALTHY</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.3); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-primary); letter-spacing: 0.5px;">SRE FAILOVER SIMULATION SANDBOX</span>
+            <span style="font-size: 0.775rem; color: var(--color-text-muted); line-height: 1.4;" id="simulation-instructions">
+              Test platform resiliency. Click the button to simulate a complete AWS ap-south-1 outage and watch the disaster recovery engine execute.
+            </span>
+          </div>
+
+          <button class="failover-trigger-btn" id="failover-btn" onclick="startFailoverSimulation()">SIMULATE REGION OUTAGE</button>
+        </div>
+
+        <!-- CLI Console Sandbox -->
+        <div class="panel-card" style="padding: 1.25rem;">
+          <div class="panel-title" style="color: #fff; margin-bottom: 0.5rem; padding-left: 0.5rem;">
+            <span>🐚 Interactive Zsh Shell</span>
+          </div>
+          
+          <div class="shell-container">
+            <div class="shell-header">
+              <div class="shell-actions">
+                <div class="shell-dot" style="background: var(--color-error);"></div>
+                <div class="shell-dot" style="background: var(--color-warning);"></div>
+                <div class="shell-dot" style="background: var(--color-success);"></div>
+              </div>
+              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--color-text-muted);">zsh - kalyan@infrastructure-terminal</span>
+            </div>
+            <div class="shell-body" id="shell-body">
+              <div>Welcome. Type <span style="color: var(--color-primary);">help</span> or <span style="color: var(--color-primary);">ls</span> to query the system filesystem.</div>
+            </div>
+            <div class="shell-input-row">
+              <span class="shell-prompt-label" id="shell-prompt-label">visitor@kalyan-shell:~$</span>
+              <input type="text" class="shell-input" id="shell-input" autocomplete="off" placeholder="type command here..." autofocus>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Visualizers Showcase -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <span>Interactive Architecture Visualizers</span>
+      </div>
+      
+      <div class="viz-grid">
+        <!-- Viz 1: DR Drill -->
+        <a href="../aws-architecture-viz/dr-drill.html" class="viz-card" target="_blank">
+          <div class="viz-icon">🚨</div>
+          <div class="viz-title">DR Failover Drill</div>
+          <p class="viz-desc">Watch an animated, step-by-step regional failover simulation from Mumbai to Hyderabad, showing node failures and failbacks.</p>
+          <span class="viz-action">Launch Simulator ➔</span>
+        </a>
+
+        <!-- Viz 2: Traffic Sim -->
+        <a href="../aws-architecture-viz/traffic-sim.html" class="viz-card" target="_blank">
+          <div class="viz-icon">🌐</div>
+          <div class="viz-title">VPC Traffic Simulator</div>
+          <p class="viz-desc">Interactive packet flow through Ingress, public subnets, ALB, private VPC nodes, and bank partner VPN tunnels.</p>
+          <span class="viz-action">Launch Simulator ➔</span>
+        </a>
+
+        <!-- Viz 3: Architecture Flow -->
+        <a href="../aws-architecture-viz/architecture-flow.html" class="viz-card" target="_blank">
+          <div class="viz-icon">⚙️</div>
+          <div class="viz-title">Namespace Flow Map</div>
+          <p class="viz-desc">Detailed EKS namespace boundaries visualizer detailing Pod communications, Vault keys, and MSK event streams.</p>
+          <span class="viz-action">Launch Map ➔</span>
+        </a>
+
+        <!-- Viz 4: Production Topology -->
+        <a href="../aws-architecture-viz/index.html" class="viz-card" target="_blank">
+          <div class="viz-icon">🗺️</div>
+          <div class="viz-title">Production Topology</div>
+          <p class="viz-desc">Full interactive mapping of YesBank x Vegapay production infrastructure stacks, APIs, and rightsized groups.</p>
+          <span class="viz-action">Open Explorer ➔</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Case Studies / Architectural Showcase -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <span>Production Implementations & Case Studies</span>
+      </div>
+      
+      <div class="projects-grid">
+        
+        <!-- Project 1 -->
+        <div class="project-card" onclick="openDrawer('mcp')">
+          <div class="project-meta">
+            <span class="project-type-tag">AI / Platform Eng</span>
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted);">2026</span>
+          </div>
+          <h3 class="project-title">AI-Augmented Platform Eng</h3>
+          <p class="project-desc">
+            Research and prototype of Model Context Protocol (MCP) integrations to automate AI-driven cluster environment configurations.
+          </p>
+          <div class="project-action-btn">Inspect Architecture ➔</div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card" onclick="openDrawer('dr')">
+          <div class="project-meta">
+            <span class="project-type-tag">Terraform / HA</span>
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted);">2025</span>
+          </div>
+          <h3 class="project-title">Multi-Region Failover Pilot</h3>
+          <p class="project-desc">
+            Orchestrated a Terraform-based pilot for automated active-passive recovery pipelines, reducing RTO down to 15 minutes.
+          </p>
+          <div class="project-action-btn">Inspect Architecture ➔</div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card" onclick="openDrawer('eks')">
+          <div class="project-meta">
+            <span class="project-type-tag">Kubernetes / FinOps</span>
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted);">2026</span>
+          </div>
+          <h3 class="project-title">EKS Optimization & Cost Cuts</h3>
+          <p class="project-desc">
+            Standardized Vegapay production clusters on AWS Graviton and Karpenter autoscale parameters, slashing cloud bills by 32%.
+          </p>
+          <div class="project-action-btn">Inspect Architecture ➔</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Career Milestones -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">04</span>
+        <span>Professional Experience Timeline</span>
+      </div>
+      
+      <div class="timeline">
+        
+        <!-- Job 1 -->
+        <div class="timeline-item" onmouseenter="highlightJobSkills('vegapay')" onmouseleave="resetJobSkills()">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header">
+            <h3 class="timeline-title">Senior DevOps Engineer <span class="timeline-company">@ Vegapay (Fintech)</span></h3>
+            <span class="timeline-date">May 2026 – Present</span>
+          </div>
+          <div class="timeline-content">
+            <ul class="timeline-bullets">
+              <li>Architected and deployed high-availability AWS Site-to-Site VPN connections to establish secure, encrypted tunnels for banking partners, ensuring strict PCI-DSS compliance.</li>
+              <li>Reduced annual production cloud spend by 32% through intelligent auto-scaling with Karpenter and migrating EKS workloads to AWS Graviton-based instances.</li>
+              <li>Optimized Amazon EKS cluster performance by fine-tuning VPC CNI and resource requests/limits, improving application response time by 20%.</li>
+              <li>Standardized enterprise-wide Infrastructure as Code (Terraform/Terragrunt) across multi-account AWS environments, achieving 100% environment parity.</li>
+              <li>Engineered internal CLI tools in Python to automate developer environment provisioning, reducing onboarding time and increasing engineering velocity by 25%.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 2 -->
+        <div class="timeline-item" onmouseenter="highlightJobSkills('justdial')" onmouseleave="resetJobSkills()">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header">
+            <h3 class="timeline-title">Senior DevOps Engineer <span class="timeline-company">@ Justdial Ltd.</span></h3>
+            <span class="timeline-date">June 2022 – May 2026</span>
+          </div>
+          <div class="timeline-content">
+            <ul class="timeline-bullets">
+              <li>Orchestrated production-grade Kubernetes clusters managing 150+ microservices using Docker and Helm, maintaining 99.99% uptime across multi-AZ deployments.</li>
+              <li>Spearheaded cloud migration strategies to AWS and Azure, reducing infrastructure footprint by 15% through resource consolidation.</li>
+              <li>Re-engineered legacy Jenkins pipelines into modern GitOps workflows using ArgoCD, reducing deployment failure rates by 45%.</li>
+              <li>Developed an enterprise observability stack (Prometheus, Grafana, ELK) for 200+ servers, reducing MTTR by 35% through automated alerting.</li>
+              <li>Implemented shift-left security by integrating automated vulnerability scanning (Trivy/SonarQube), remediating 300+ security issues before production.</li>
+              <li>Optimized cloud infrastructure costs by 28% annually through reserved instances management and rigorous resource rightsizing.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job 3 -->
+        <div class="timeline-item" onmouseenter="highlightJobSkills('mahindra')" onmouseleave="resetJobSkills()">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header">
+            <h3 class="timeline-title">Associate Software Engineer <span class="timeline-company">@ Tech Mahindra</span></h3>
+            <span class="timeline-date">Aug 2021 – May 2022</span>
+          </div>
+          <div class="timeline-content">
+            <ul class="timeline-bullets">
+              <li>Automated repetitive system tasks using Python and Bash scripts with Cron jobs, saving 10+ manual hours per week.</li>
+              <li>Resolved critical OS and network issues by analyzing system logs and performance metrics, maintaining 99% uptime.</li>
+              <li>Configured Nginx load balancers and optimized network bonding to handle high-concurrency web traffic.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Technical Skill Matrix Grid -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">05</span>
+        <span>Technical Competencies Matrix</span>
+      </div>
+      
+      <div class="skills-block">
+        
+        <!-- Category 1 -->
+        <div class="skills-group">
+          <span class="skills-group-title">Cloud & IaC</span>
+          <div class="skills-badges">
+            <span class="badge-tag" id="skill-aws">AWS</span>
+            <span class="badge-tag" id="skill-azure">Azure</span>
+            <span class="badge-tag" id="skill-tf">Terraform</span>
+            <span class="badge-tag" id="skill-tg">Terragrunt</span>
+            <span class="badge-tag" id="skill-ans">Ansible</span>
+            <span class="badge-tag" id="skill-fin">FinOps</span>
+          </div>
+        </div>
+
+        <!-- Category 2 -->
+        <div class="skills-group">
+          <span class="skills-group-title">Containers</span>
+          <div class="skills-badges">
+            <span class="badge-tag" id="skill-k8s">Kubernetes</span>
+            <span class="badge-tag" id="skill-dkr">Docker</span>
+            <span class="badge-tag" id="skill-hlm">Helm</span>
+            <span class="badge-tag" id="skill-eks">EKS</span>
+            <span class="badge-tag" id="skill-aks">AKS</span>
+            <span class="badge-tag" id="skill-krp">Karpenter</span>
+            <span class="badge-tag" id="skill-ist">Istio</span>
+          </div>
+        </div>
+
+        <!-- Category 3 -->
+        <div class="skills-group">
+          <span class="skills-group-title">CI/CD & Security</span>
+          <div class="skills-badges">
+            <span class="badge-tag" id="skill-argo">ArgoCD</span>
+            <span class="badge-tag" id="skill-gha">GitHub Actions</span>
+            <span class="badge-tag" id="skill-jenk">Jenkins</span>
+            <span class="badge-tag" id="skill-vault">Vault</span>
+            <span class="badge-tag" id="skill-trivy">Trivy</span>
+            <span class="badge-tag" id="skill-sonar">SonarQube</span>
+          </div>
+        </div>
+
+        <!-- Category 4 -->
+        <div class="skills-group">
+          <span class="skills-group-title">Observability & Dev</span>
+          <div class="skills-badges">
+            <span class="badge-tag" id="skill-prom">Prometheus</span>
+            <span class="badge-tag" id="skill-graf">Grafana</span>
+            <span class="badge-tag" id="skill-elk">ELK Stack</span>
+            <span class="badge-tag" id="skill-py">Python</span>
+            <span class="badge-tag" id="skill-go">Go (Golang)</span>
+            <span class="badge-tag" id="skill-bash">Bash</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Verified Certifications -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">06</span>
+        <span>Credentials & Certifications</span>
+      </div>
+      
+      <div class="certs-grid">
+        <!-- Cert 1 -->
+        <div class="cert-card">
+          <div class="cert-icon">🏅</div>
+          <div class="cert-info">
+            <span class="cert-name">AWS Solutions Architect</span>
+            <span class="cert-org">Amazon Web Services (Associate)</span>
+          </div>
+        </div>
+        <!-- Cert 2 -->
+        <div class="cert-card">
+          <div class="cert-icon">🏅</div>
+          <div class="cert-info">
+            <span class="cert-name">Azure Fundamentals</span>
+            <span class="cert-org">Microsoft (AZ-900)</span>
+          </div>
+        </div>
+        <!-- Cert 3 -->
+        <div class="cert-card">
+          <div class="cert-icon">🏅</div>
+          <div class="cert-info">
+            <span class="cert-name">Generative AI Badge</span>
+            <span class="cert-org">AWS Educate (2025)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academic Background -->
+    <section>
+      <div class="section-title">
+        <span class="section-num">07</span>
+        <span>Education & Background</span>
+      </div>
+      
+      <div class="certs-grid">
+        <!-- Degree -->
+        <div class="cert-card">
+          <div class="cert-icon">🎓</div>
+          <div class="cert-info">
+            <span class="cert-name">Bachelor of Engineering in Computer Science</span>
+            <span class="cert-org">Dr Ambedkar Institute of Technology (2020) | CGPA: 7.52</span>
+          </div>
+        </div>
+        <!-- Diploma -->
+        <div class="cert-card">
+          <div class="cert-icon">🎓</div>
+          <div class="cert-info">
+            <span class="cert-name">Diploma in Computer Science</span>
+            <span class="cert-org">MEI Polytechnic, Bangalore (2017)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Project Drawer & SVG Diagrams Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="project-drawer" id="project-drawer">
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+    <div class="drawer-header-title" id="drawer-title">Case Study</div>
+    
+    <div>
+      <div class="drawer-sec-title">Architectural Flowchart</div>
+      <div class="diagram-box" id="drawer-diagram-container">
+        <!-- SVG diagram gets injected here -->
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-sec-title">Architectural Scope</div>
+      <p id="drawer-scope">Scope description...</p>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-sec-title">Challenge & Implementation Loop</div>
+      <p id="drawer-details">Detailed case breakdown...</p>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-sec-title">Configuration / Code Spec</div>
+      <div class="code-block" id="drawer-code"># manifest preview</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Maintained in code & published to GitHub Pages. Profile: <a href="https://github.com/kalyanace44" target="_blank">kalyanace44</a></p>
+  </footer>
+
+  <!-- Interactivity Javascript Logic -->
+  <script>
+    // System Skills Mapping for Job Highlighting
+    const jobSkillsMap = {
+      vegapay: ["aws", "tf", "tg", "k8s", "eks", "krp", "py"],
+      justdial: ["aws", "azure", "k8s", "hlm", "dkr", "argo", "jenk", "trivy", "sonar", "prom", "graf", "elk"],
+      mahindra: ["py", "bash"]
+    };
+
+    function highlightJobSkills(jobKey) {
+      const skills = jobSkillsMap[jobKey];
+      if (!skills) return;
+      
+      skills.forEach(skillId => {
+        const el = document.getElementById(`skill-${skillId}`);
+        if (el) el.classList.add("highlight-skill");
+      });
+    }
+
+    function resetJobSkills() {
+      document.querySelectorAll(".badge-tag").forEach(el => {
+        el.classList.remove("highlight-skill");
+      });
+    }
+
+    // Dynamic failover state machine
+    let simulationMode = "idle"; // idle, alert, rds_prompt, docdb_prompt, redis_prompt, ebs_prompt, vault_prompt, restart_prompt, dns_prompt, complete
+    let startTime = null;
+
+    function startFailoverSimulation() {
+      if (simulationMode !== "idle" && simulationMode !== "complete") return;
+      
+      simulationMode = "alert";
+      startTime = Date.now();
+
+      // UI Indicators to Alert State
+      const pingDot = document.getElementById("simulator-ping-dot");
+      const pingText = document.getElementById("simulator-ping-text");
+      const btn = document.getElementById("failover-btn");
+      
+      pingDot.style.backgroundColor = "var(--color-error)";
+      pingDot.style.boxShadow = "0 0 10px var(--color-error)";
+      pingText.textContent = "CRITICAL OUTAGE";
+      pingText.style.color = "var(--color-error)";
+      document.getElementById("alert-state-badge").style.borderColor = "rgba(239, 68, 68, 0.4)";
+      document.getElementById("alert-state-badge").style.backgroundColor = "rgba(239, 68, 68, 0.05)";
+      
+      btn.textContent = "INTERACTIVE DRILL ACTIVE";
+      btn.disabled = true;
+
+      // Telemetry Glares Red
+      document.getElementById("gauge-val-uptime").innerHTML = `99.90<span class="gauge-unit">%</span>`;
+      document.getElementById("gauge-stat-uptime").textContent = "❌ SLA BREACHED";
+      document.getElementById("gauge-stat-uptime").style.color = "var(--color-error)";
+      document.getElementById("gauge-val-region").textContent = "CRITICAL";
+      document.getElementById("gauge-stat-region").textContent = "● OUTAGE";
+      document.getElementById("gauge-stat-region").style.color = "var(--color-error)";
+      document.getElementById("gauge-region").style.setProperty("--gauge-color", "var(--color-error)");
+      
+      document.getElementById("gauge-val-load").innerHTML = `999<span class="gauge-unit">ms</span>`;
+      document.getElementById("gauge-stat-load").textContent = "❌ TIMEOUT";
+      document.getElementById("gauge-stat-load").style.color = "var(--color-error)";
+
+      document.getElementById("platform-status-text").textContent = "Outage! ap-south-1 Down";
+      document.getElementById("platform-status-dot").style.backgroundColor = "var(--color-error)";
+
+      document.getElementById("simulation-instructions").innerHTML = `
+        <span style="color: var(--color-error); font-weight: bold;">⚠️ ap-south-1 OUTAGE SIMULATION DETECTED!</span><br>
+        Run Kalyan's recovery script in the Zsh Shell to start failover: <br>
+        <span style="color: var(--color-primary); font-family: var(--font-mono); font-weight: bold;">./dr_failover.py --direction mum-to-hyd</span>
+      `;
+
+      appendLog("CRITICAL: Outage detected in AWS ap-south-1 (Mumbai) VPC networks!", "var(--color-error)");
+      appendLog("SRE Warning: Failover interaction required in shell.", "var(--color-warning)");
+    }
+
+    // Interactive Shell Simulator Config
+    const shellInput = document.getElementById("shell-input");
+    const shellBody = document.getElementById("shell-body");
+    const promptLabel = document.getElementById("shell-prompt-label");
+    
+    let commandHistory = [];
+    let historyIndex = -1;
+    let currentDir = "/";
+
+    const filesystem = {
+      "/": { type: "dir", contents: ["projects", "resume.txt", "skills.json", "certifications.txt", "education.txt", "contact.txt"] },
+      "/projects": { type: "dir", contents: ["mcp_platform.md", "multi_region_dr.md", "eks_karpenter_opt.md"] },
+      "/resume.txt": { type: "file", content: `E KALYAN - Senior DevOps Engineer\nBangalore, India | kalyanace44@gmail.com\n=========================================\nEXPERIENCE:\n- Vegapay (Fintech) | Senior DevOps Engineer (2026 - Present)\n- Justdial Ltd. | Senior DevOps Engineer (2022 - 2026)\n- Tech Mahindra | Associate Software Engineer (2021 - 2022)` },
+      "/skills.json": { type: "file", content: `{\n  "Cloud": ["AWS", "Azure"],\n  "IaC": ["Terraform", "Terragrunt", "Ansible"],\n  "Containers": ["Kubernetes", "Docker", "Helm", "Karpenter", "Istio"],\n  "Observability": ["Prometheus", "Grafana", "ELK"]\n}` },
+      "/certifications.txt": { type: "file", content: `- AWS Certified Solutions Architect - Associate\n- Microsoft Certified: Azure Fundamentals (AZ-900)\n- AWS Educate Generative AI Badge (2025)` },
+      "/education.txt": { type: "file", content: `- Bachelor of Engineering in Computer Science\n  Dr Ambedkar Institute of Technology (2020) | CGPA: 7.52\n- Diploma in Computer Science\n  MEI Polytechnic, Bangalore (2017)` },
+      "/contact.txt": { type: "file", content: `Email: kalyanace44@gmail.com\nLinkedIn: linkedin.com/in/ekalyan\nPhone: +91 8867619223` },
+      "/projects/mcp_platform.md": { type: "file", content: `# AI-Augmented Platform Engineering\nPrototyping MCP servers to translate natural prompts to sandboxed configs.` },
+      "/projects/multi_region_dr.md": { type: "file", content: `# Multi-Region Failover Pilot\nDesigned Terraform pilots spanning ap-south-1 and ap-south-2.` },
+      "/projects/eks_karpenter_opt.md": { type: "file", content: `# EKS Optimization & Cost Cuts\nFine-tuned Karpenter autoscale targets and Graviton nodes for 32% spend cuts.` }
+    };
+
+    shellInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const line = shellInput.value.trim();
+        shellInput.value = "";
+        
+        // Fix: Zsh command mode should also run in the "alert" state
+        if (simulationMode === "idle" || simulationMode === "complete" || simulationMode === "alert") {
+          if (line) {
+            commandHistory.push(line);
+            historyIndex = commandHistory.length;
+          }
+          appendLog(`visitor@kalyan-shell:${currentDir}$ ${line}`, "var(--color-primary)");
+          executeShellCommand(line);
+        } else {
+          // DR Failover Prompt Input Mode
+          appendLog(`${promptLabel.textContent} ${line}`, "var(--color-primary)");
+          handleFailoverInput(line.toLowerCase());
+        }
+      } else if (e.key === "ArrowUp" && (simulationMode === "idle" || simulationMode === "complete" || simulationMode === "alert")) {
+        if (historyIndex > 0) {
+          historyIndex--;
+          shellInput.value = commandHistory[historyIndex];
+        }
+        e.preventDefault();
+      } else if (e.key === "ArrowDown" && (simulationMode === "idle" || simulationMode === "complete" || simulationMode === "alert")) {
+        if (historyIndex < commandHistory.length - 1) {
+          historyIndex++;
+          shellInput.value = commandHistory[historyIndex];
+        } else {
+          historyIndex = commandHistory.length;
+          shellInput.value = "";
+        }
+        e.preventDefault();
+      } else if (e.key === "Tab" && (simulationMode === "idle" || simulationMode === "complete" || simulationMode === "alert")) {
+        const inputVal = shellInput.value.trim().split(" ");
+        const cmd = inputVal[0];
+        const arg = inputVal[1] || "";
+        
+        if (cmd === "cd" || cmd === "cat") {
+          const parentDir = currentDir === "/" ? "/" : currentDir;
+          const available = filesystem[parentDir].contents;
+          const matches = available.filter(name => name.startsWith(arg));
+          if (matches.length === 1) {
+            shellInput.value = `${cmd} ${matches[0]}`;
+          }
+        }
+        e.preventDefault();
+      }
+    });
+
+    function appendLog(text, color = "var(--color-text)") {
+      const logDiv = document.createElement("div");
+      logDiv.style.color = color;
+      logDiv.innerHTML = text;
+      shellBody.appendChild(logDiv);
+      shellBody.scrollTop = shellBody.scrollHeight;
+    }
+
+    // Standard shell commands parser
+    function executeShellCommand(line) {
+      const parts = line.split(" ");
+      const cmd = parts[0].toLowerCase();
+      const arg = parts[1] || "";
+
+      // Intercept the execution script
+      if (line.toLowerCase() === "./dr_failover.py --direction mum-to-hyd" || 
+          line.toLowerCase() === "./dr_failover.py --direction=mum-to-hyd") {
+        if (simulationMode === "alert") {
+          startInteractiveFailover();
+        } else if (simulationMode === "idle" || simulationMode === "complete") {
+          appendLog("Warning: Telemetry state nominal. Trigger Outage Simulator first.", "var(--color-warning)");
+        }
+        return;
+      }
+
+      if (cmd === "./dr_failover.py") {
+        if (simulationMode === "alert") {
+          appendLog("Argument error. Run exactly: ./dr_failover.py --direction mum-to-hyd", "var(--color-error)");
+        } else {
+          appendLog("dr_failover.py script present. Requires target direction arguments.", "var(--color-warning)");
+        }
+        return;
+      }
+
+      if (cmd === "help") {
+        appendLog(`Available shell commands:<br>
+  - <span style="color: var(--color-primary)">ls</span>       : List contents of current directory<br>
+  - <span style="color: var(--color-primary)">cd [dir]</span>   : Change directory<br>
+  - <span style="color: var(--color-primary)">cat [file]</span> : Display file contents<br>
+  - <span style="color: var(--color-primary)">about</span>    : Executive profile statement<br>
+  - <span style="color: var(--color-primary)">skills</span>   : List primary cloud, Kubernetes, and IaC skills<br>
+  - <span style="color: var(--color-primary)">experience</span>: Print professional career timeline<br>
+  - <span style="color: var(--color-primary)">education</span> : Print academic credentials & background<br>
+  - <span style="color: var(--color-primary)">resume</span>   : Print formatted resume<br>
+  - <span style="color: var(--color-primary)">contact</span>  : Show direct email & phone credentials<br>
+  - <span style="color: var(--color-primary)">github</span>   : Redirect to GitHub kalyanace44 profile<br>
+  - <span style="color: var(--color-primary)">clear</span>    : Clear terminal buffer`);
+      } else if (cmd === "ls") {
+        const target = filesystem[currentDir];
+        if (target && target.type === "dir") {
+          const names = target.contents.map(name => {
+            const path = currentDir === "/" ? `/${name}` : `${currentDir}/${name}`;
+            if (filesystem[path] && filesystem[path].type === "dir") {
+              return `<span style="color: var(--color-primary); font-weight: 600;">${name}/</span>`;
+            }
+            return name;
+          });
+          appendLog(names.join("&nbsp;&nbsp;&nbsp;&nbsp;"));
+        }
+      } else if (cmd === "cd") {
+        if (!arg || arg === "~") {
+          currentDir = "/";
+        } else if (arg === "..") {
+          if (currentDir !== "/") {
+            const parts = currentDir.split("/");
+            parts.pop();
+            currentDir = parts.join("/") || "/";
+          }
+        } else {
+          const path = currentDir === "/" ? `/${arg}` : `${currentDir}/${arg}`;
+          if (filesystem[path] && filesystem[path].type === "dir") {
+            currentDir = path;
+          } else {
+            appendLog(`cd: no such directory: ${arg}`, "var(--color-error)");
+          }
+        }
+      } else if (cmd === "cat") {
+        if (!arg) {
+          appendLog("cat: missing file argument", "var(--color-warning)");
+        } else {
+          const path = currentDir === "/" ? `/${arg}` : `${currentDir}/${arg}`;
+          if (filesystem[path] && filesystem[path].type === "file") {
+            appendLog(filesystem[path].content.replace(/\n/g, "<br>"));
+          } else {
+            appendLog(`cat: ${arg}: No such file`, "var(--color-error)");
+          }
+        }
+      } else if (cmd === "about") {
+        appendLog("Senior DevOps & Platform Engineer with 5+ years of experience architecting scalable multi-cloud infrastructure (AWS & Azure). Expert in IaC modularization, SRE failover automation, cost reductions via Karpenter, and PCI-DSS audit compliance.");
+      } else if (cmd === "skills") {
+        appendLog(`- <b>Cloud</b>: AWS, Azure, Terraform, Terragrunt, Ansible<br>
+- <b>Containers</b>: Kubernetes, Helm, Docker, Karpenter, Istio<br>
+- <b>CI/CD Loop</b>: ArgoCD, GitHub Actions, GitLab CI/CD, Jenkins<br>
+- <b>Observability</b>: Prometheus, Grafana, ELK Stack`);
+      } else if (cmd === "experience") {
+        appendLog(`- <b>Senior DevOps @ Vegapay</b> (May 2026 - Present)<br>
+- <b>Senior DevOps @ Justdial Ltd.</b> (June 2022 - May 2026)<br>
+- <b>Associate Software Engineer @ Tech Mahindra</b> (Aug 2021 - May 2022)`);
+      } else if (cmd === "resume") {
+        appendLog(`<b>E KALYAN - Senior DevOps Engineer</b><br>
+------------------------------------------<br>
+Bangalore, India | kalyanace44@gmail.com | +91 8867619223<br><br>
+<b>SUMMARY:</b><br>
+Results-driven Platform Engineer with 5+ years in AWS/Azure infrastructure scaling, Kubernetes deployments optimization, and active-passive failover script configurations.<br><br>
+<b>JOBS HISTORY:</b><br>
+- Vegapay (Fintech) | Senior DevOps (2026 - Present)<br>
+- Justdial Ltd. | Senior DevOps (2022 - 2026)<br>
+- Tech Mahindra | Associate Software Engineer (2021 - 2022)`);
+      } else if (cmd === "education") {
+        appendLog(`- <b>Bachelor of Engineering in CS</b> | Dr Ambedkar Institute of Technology (2020) | CGPA: 7.52<br>
+- <b>Diploma in Computer Science</b> | MEI Polytechnic, Bangalore (2017)`);
+      } else if (cmd === "contact") {
+        appendLog("Email: kalyanace44@gmail.com<br>LinkedIn: linkedin.com/in/ekalyan<br>Phone: +91 8867619223<br>Location: Bangalore, India");
+      } else if (cmd === "github") {
+        appendLog("Opening github.com/kalyanace44 in a new tab...", "var(--color-success)");
+        window.open("https://github.com/kalyanace44", "_blank");
+      } else if (cmd === "clear") {
+        shellBody.innerHTML = "";
+      } else if (line === "") {
+        // empty input
+      } else {
+        if (simulationMode === "alert") {
+          appendLog(`Command ignored. Outage active! Run: <span style="color: var(--color-primary)">./dr_failover.py --direction mum-to-hyd</span>`, "var(--color-warning)");
+        } else {
+          appendLog(`zsh: command not found: ${cmd}. Type <span style="color: var(--color-primary)">help</span> for options.`, "var(--color-error)");
+        }
+      }
+    }
+
+    // Interactive Failover Logic Steps
+    function startInteractiveFailover() {
+      simulationMode = "rds_prompt";
+      appendLog("----------------------------------------------------------------", "var(--color-warning)");
+      appendLog("[DR SCRIPT RUN] Starting disaster recovery script...", "var(--color-primary)");
+      appendLog("Configured Direction: Mumbai (ap-south-1) -> Hyderabad (ap-south-2)", "var(--color-text)");
+      promptLabel.textContent = "Promote RDS read replica (prod-ybl-rds) to master? (y/n):";
+    }
+
+    function handleFailoverInput(input) {
+      if (input !== "y" && input !== "yes" && input !== "n" && input !== "no") {
+        appendLog("Invalid input. Please enter 'y' or 'n'.", "var(--color-error)");
+        return;
+      }
+
+      const confirmed = input === "y" || input === "yes";
+
+      switch (simulationMode) {
+        case "rds_prompt":
+          if (confirmed) {
+            appendLog("Executing: aws rds promote-read-replica --db-instance-identifier prod-ybl-rds...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: RDS replica promoted successfully to Master Database.", "var(--color-success)");
+              // Update RDS Gauge partly
+              document.getElementById("gauge-val-region").textContent = "RDS OK";
+              document.getElementById("gauge-val-region").style.color = "var(--color-warning)";
+              nextPrompt("docdb_prompt", "Promote DocumentDB cluster replica (prod-ybl-mongo-hyd)? (y/n):");
+            }, 800);
+          } else {
+            appendLog("Warning: Skipping database promotion may cause writes to fail.", "var(--color-warning)");
+            nextPrompt("docdb_prompt", "Promote DocumentDB cluster replica (prod-ybl-mongo-hyd)? (y/n):");
+          }
+          break;
+
+        case "docdb_prompt":
+          if (confirmed) {
+            appendLog("Executing: aws docdb promote-read-replica-db-cluster --db-cluster-identifier prod-ybl-mongo-hyd...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: DocumentDB cluster replica promoted.", "var(--color-success)");
+              nextPrompt("redis_prompt", "Switch Redis ElastiCache Global Datastore primary region to ap-south-2? (y/n):");
+            }, 800);
+          } else {
+            appendLog("Skipped DocumentDB promotion.", "var(--color-text-muted)");
+            nextPrompt("redis_prompt", "Switch Redis ElastiCache Global Datastore primary region to ap-south-2? (y/n):");
+          }
+          break;
+
+        case "redis_prompt":
+          if (confirmed) {
+            appendLog("Executing: aws elasticache failover-global-replication-group --global-replication-group-id prod-yesbank-redis-global --primary-region ap-south-2 --primary-replication-group-id prod-yesbank-redis-v1...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: Redis primary database transitioned to Hyderabad.", "var(--color-success)");
+              nextPrompt("ebs_prompt", "Restore ClickHouse & Debezium EBS volumes from replicated snapshots? (y/n):");
+            }, 800);
+          } else {
+            appendLog("Skipped Redis global region swap.", "var(--color-text-muted)");
+            nextPrompt("ebs_prompt", "Restore ClickHouse & Debezium EBS volumes from replicated snapshots? (y/n):");
+          }
+          break;
+
+        case "ebs_prompt":
+          if (confirmed) {
+            appendLog("Scanning EC2 snapshots... Found snap-0fb12c (Clickhouse) & snap-0cd34a (Connector).", "var(--color-text-muted)");
+            appendLog("Re-mounting EBS persistent volumes & updating EKS PV mappings...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: Persistent volumes re-established successfully.", "var(--color-success)");
+              // Update load gauge partly
+              document.getElementById("gauge-val-load").innerHTML = `38<span class="gauge-unit">ms</span>`;
+              document.getElementById("gauge-stat-load").textContent = "● NOMINAL";
+              document.getElementById("gauge-stat-load").style.color = "var(--color-primary)";
+              nextPrompt("vault_prompt", "Inject promoted endpoints configuration to HashiCorp Vault pod (vault-0)? (y/n):");
+            }, 1000);
+          } else {
+            appendLog("Skipped PV restoration. Clickhouse analytical data will be empty.", "var(--color-warning)");
+            nextPrompt("vault_prompt", "Inject promoted endpoints configuration to HashiCorp Vault pod (vault-0)? (y/n):");
+          }
+          break;
+
+        case "vault_prompt":
+          if (confirmed) {
+            appendLog("Accessing pod vault-0 namespace vault...", "var(--color-text-muted)");
+            appendLog("Updating paths: database/creds/prod-billing-endpoints...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: HashiCorp Vault credentials paths refreshed.", "var(--color-success)");
+              nextPrompt("restart_prompt", "Perform rolling restart of EKS application deployments to pick up new secrets? (y/n):");
+            }, 800);
+          } else {
+            appendLog("Skipped Vault secrets modification.", "var(--color-warning)");
+            nextPrompt("restart_prompt", "Perform rolling restart of EKS application deployments to pick up new secrets? (y/n):");
+          }
+          break;
+
+        case "restart_prompt":
+          if (confirmed) {
+            appendLog("Triggering rollout restart on namespaces prod-apps...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("- account-service: Running (Active)", "var(--color-text-muted)");
+              appendLog("- charges-service: Running (Active)", "var(--color-text-muted)");
+              appendLog("- payment-gateway: Running (Active)", "var(--color-text-muted)");
+              appendLog("- recon-platform: Running (Active)", "var(--color-text-muted)");
+              appendLog("✓ Success: All application pods restarted successfully.", "var(--color-success)");
+              nextPrompt("dns_prompt", "Redirect Route 53 global DNS routing policies to Hyderabad? (y/n):");
+            }, 1200);
+          } else {
+            appendLog("Skipped EKS service restarts.", "var(--color-warning)");
+            nextPrompt("dns_prompt", "Redirect Route 53 global DNS routing policies to Hyderabad? (y/n):");
+          }
+          break;
+
+        case "dns_prompt":
+          if (confirmed) {
+            appendLog("Updating Route 53 resource record sets for api.domain.com...", "var(--color-text-muted)");
+            setTimeout(() => {
+              appendLog("✓ Success: Route 53 latency routing policies shifted to ap-south-2.", "var(--color-success)");
+              completeFailover(true);
+            }, 800);
+          } else {
+            appendLog("Skipped DNS modifications.", "var(--color-warning)");
+            completeFailover(false);
+          }
+          break;
+      }
+    }
+
+    function nextPrompt(nextState, promptText) {
+      simulationMode = nextState;
+      promptLabel.textContent = promptText;
+    }
+
+    function completeFailover(fullyCompleted) {
+      simulationMode = "complete";
+      promptLabel.textContent = "visitor@kalyan-shell:~$";
+
+      const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+
+      appendLog("----------------------------------------------------------------", "var(--color-warning)");
+      appendLog(`[DR COMPLETE] Disaster recovery drill execution finished.`, "var(--color-success)");
+      appendLog(`Total recovery execution loop: ${totalTime}s (Target RTO: 15m).`, "var(--color-primary)");
+
+      // Restructure Metrics to Hyderabad
+      const pingDot = document.getElementById("simulator-ping-dot");
+      const pingText = document.getElementById("simulator-ping-text");
+      const btn = document.getElementById("failover-btn");
+      
+      pingDot.style.backgroundColor = "var(--color-success)";
+      pingDot.style.boxShadow = "0 0 10px var(--color-success)";
+      pingText.textContent = "NOMINAL (HYDERABAD ACTIVE)";
+      pingText.style.color = "var(--color-success)";
+      document.getElementById("alert-state-badge").style.borderColor = "rgba(16, 185, 129, 0.4)";
+      document.getElementById("alert-state-badge").style.backgroundColor = "rgba(16, 185, 129, 0.05)";
+
+      document.getElementById("gauge-val-uptime").innerHTML = `99.99<span class="gauge-unit">%</span>`;
+      document.getElementById("gauge-stat-uptime").textContent = "✓ SLA MAINTAINED";
+      document.getElementById("gauge-stat-uptime").style.color = "var(--color-success)";
+
+      document.getElementById("gauge-val-region").textContent = "HYDERABAD";
+      document.getElementById("gauge-val-region").style.fontSize = "1.15rem";
+      document.getElementById("gauge-val-region").style.color = "var(--color-success)";
+      document.getElementById("gauge-stat-region").textContent = "● AP-SOUTH-2";
+      document.getElementById("gauge-stat-region").style.color = "var(--color-success)";
+      document.getElementById("gauge-region").style.setProperty("--gauge-color", "var(--color-success)");
+
+      document.getElementById("gauge-val-load").innerHTML = `14<span class="gauge-unit">ms</span>`;
+      document.getElementById("gauge-stat-load").textContent = "● NOMINAL";
+      document.getElementById("gauge-stat-load").style.color = "var(--color-success)";
+
+      document.getElementById("platform-status-text").textContent = "Stack: ap-south-2 (Hyderabad)";
+      document.getElementById("platform-status-dot").style.backgroundColor = "var(--color-success)";
+
+      document.getElementById("simulation-instructions").innerHTML = `
+        <span style="color: var(--color-success); font-weight: bold;">✓ DR DRILL SUCCESSFUL!</span><br>
+        Hyderabad is now primary. Uptime SLA maintained.<br>
+        Click the button below to reset the simulator back to Mumbai ap-south-1.
+      `;
+
+      btn.textContent = "RESET SIMULATOR (MUMBAI)";
+      btn.disabled = false;
+      btn.onclick = resetFailoverSimulation;
+    }
+
+    function resetFailoverSimulation() {
+      simulationMode = "idle";
+      const btn = document.getElementById("failover-btn");
+      appendLog("Resetting sandbox telemetry back to Mumbai ap-south-1...", "var(--color-primary)");
+
+      document.getElementById("gauge-val-uptime").innerHTML = `99.99<span class="gauge-unit">%</span>`;
+      document.getElementById("gauge-val-region").textContent = "MUMBAI";
+      document.getElementById("gauge-val-region").style.fontSize = "1.25rem";
+      document.getElementById("gauge-val-region").style.color = "var(--color-text)";
+      document.getElementById("gauge-stat-region").textContent = "● AP-SOUTH-1";
+      document.getElementById("gauge-stat-region").style.color = "var(--color-primary)";
+      document.getElementById("gauge-val-load").innerHTML = `12<span class="gauge-unit">ms</span>`;
+      document.getElementById("gauge-stat-load").textContent = "● HEALTHY";
+      document.getElementById("gauge-stat-load").style.color = "var(--color-success)";
+      document.getElementById("gauge-region").style.setProperty("--gauge-color", "var(--color-primary)");
+      
+      document.getElementById("platform-status-text").textContent = "Stack: ap-south-1 (Mumbai)";
+      document.getElementById("platform-status-dot").style.backgroundColor = "var(--color-success)";
+      
+      const pingText = document.getElementById("simulator-ping-text");
+      pingText.textContent = "NOMINAL STATE";
+
+      document.getElementById("simulation-instructions").textContent = "Test platform resiliency. Click the button to simulate a complete AWS ap-south-1 outage and watch the disaster recovery engine execute.";
+
+      btn.textContent = "SIMULATE REGION OUTAGE";
+      btn.onclick = startFailoverSimulation;
+    }
+
+    // Projects Database
+    const projectsDrawerDB = {
+      mcp: {
+        title: "AI-Augmented Platform Engineering",
+        scope: "Prototyping MCP (Model Context Protocol) nodes to translate LLM agent outputs directly into secure, sandboxed Kubernetes environment builds.",
+        details: "Developer speed is bottlenecked by manual environment bootstrapping. In this pilot, I engineered Python-based MCP tools that compile unstructured prompts into Terraform and Helm manifests, parsing them in a safe validation loop before applying them to testing clusters.",
+        code: `def compile_mcp_k8s_manifest(prompt_text):
+    # Parses prompt instructions to structured Helm charts
+    parsed_config = ai_engine.compile(prompt_text)
+    return kubernetes.apply(parsed_config)`,
+        svg: `<svg viewBox="0 0 500 120" class="diagram-svg">
+          <rect x="10" y="40" width="100" height="40" rx="6" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+          <text x="60" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">LLM Agent</text>
+          
+          <path d="M 110 60 L 150 60" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-dasharray="4"/>
+          
+          <rect x="150" y="40" width="120" height="40" rx="6" fill="none" stroke="var(--color-secondary)" stroke-width="2"/>
+          <text x="210" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">MCP Adapter (Python)</text>
+          
+          <path d="M 270 60 L 310 60" fill="none" stroke="var(--color-secondary)" stroke-width="2"/>
+          
+          <rect x="310" y="40" width="130" height="40" rx="6" fill="none" stroke="var(--color-success)" stroke-width="2"/>
+          <text x="375" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">K8s Cluster (Sandboxed)</text>
+        </svg>`
+      },
+      dr: {
+        title: "Multi-Region Disaster Recovery",
+        scope: "Establishing high-availability DNS latency failover infrastructure spanning AWS ap-south-1 and ap-south-2 nodes.",
+        details: "Single region infrastructures are prone to complete regional failures. In this configuration, database replication channels sync PostgreSQL and Redis state globally, while AWS Route 53 health checking triggers automated promotions of the secondary replica cluster within 15 minutes.",
+        code: `resource "aws_route53_record" "failover" {
+  zone_id = var.hosted_zone_id
+  name    = "api.domain.com"
+  type    = "A"
+  
+  failover_routing_policy {
+    type = "PRIMARY"
+  }
+}`,
+        svg: `<svg viewBox="0 0 500 120" class="diagram-svg">
+          <rect x="200" y="10" width="100" height="30" rx="4" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+          <text x="250" y="28" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">Route 53 DNS</text>
+          
+          <path d="M 200 25 L 100 60" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+          <path d="M 300 25 L 400 60" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-dasharray="4"/>
+          
+          <rect x="40" y="60" width="120" height="40" rx="6" fill="none" stroke="var(--color-success)" stroke-width="2"/>
+          <text x="100" y="85" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">ap-south-1 (Mumbai)</text>
+          
+          <rect x="340" y="60" width="120" height="40" rx="6" fill="none" stroke="var(--color-text-muted)" stroke-width="2"/>
+          <text x="400" y="85" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">ap-south-2 (Hyderabad)</text>
+        </svg>`
+      },
+      eks: {
+        title: "EKS Scale & Cost Cuts",
+        scope: "Optimizing Kubernetes resource configurations, node autoscaling, and compute choices.",
+        details: "FinTech apps incur significant computing bills. I migrated Vegapay workloads to AWS Graviton ARM cores (reducing cost-per-instance) and re-configured Karpenter NodePool parameters to aggressively bin-pack pods, slashing annual cloud spend by 32%.",
+        code: `apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: graviton-pool
+spec:
+  template:
+    spec:
+      requirements:
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["arm64"]`,
+        svg: `<svg viewBox="0 0 500 120" class="diagram-svg">
+          <rect x="30" y="40" width="100" height="40" rx="6" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+          <text x="80" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">Pod Traffic</text>
+          
+          <path d="M 130 60 L 170 60" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+          
+          <rect x="170" y="40" width="120" height="40" rx="6" fill="none" stroke="var(--color-secondary)" stroke-width="2"/>
+          <text x="230" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">Karpenter Controller</text>
+          
+          <path d="M 290 60 L 330 60" fill="none" stroke="var(--color-secondary)" stroke-width="2"/>
+          
+          <rect x="330" y="40" width="140" height="40" rx="6" fill="none" stroke="var(--color-success)" stroke-width="2"/>
+          <text x="400" y="65" fill="#fff" font-size="10" text-anchor="middle" font-family="var(--font-mono)">AWS Graviton Instances</text>
+        </svg>`
+      }
+    };
+
+    function openDrawer(key) {
+      const proj = projectsDrawerDB[key];
+      if (!proj) return;
+
+      document.getElementById("drawer-title").textContent = proj.title;
+      document.getElementById("drawer-scope").textContent = proj.scope;
+      document.getElementById("drawer-details").textContent = proj.details;
+      document.getElementById("drawer-code").textContent = proj.code;
+      document.getElementById("drawer-diagram-container").innerHTML = proj.svg;
+
+      document.getElementById("project-drawer").classList.add("open");
+      document.getElementById("drawer-overlay").classList.add("active");
+    }
+
+    function closeDrawer() {
+      document.getElementById("project-drawer").classList.remove("open");
+      document.getElementById("drawer-overlay").classList.remove("active");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SRE Mission Control — Disaster Recovery Failover Simulation</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #05070f;
+      --bg-panel: rgba(10, 15, 28, 0.85);
+      --bg-card: rgba(20, 27, 47, 0.45);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --border-glow: rgba(0, 245, 255, 0.1);
+      
+      --color-primary: #00f5ff;       /* Neon Cyan */
+      --color-secondary: #9d4edd;     /* Neon Purple */
+      --color-success: #10b981;       /* Emerald Green */
+      --color-warning: #f59e0b;       /* Amber Gold */
+      --color-error: #ef4444;         /* Neon Red */
+      --color-text: #f3f4f6;
+      --color-text-muted: #8b9bb4;
+      
+      --font-outfit: 'Outfit', sans-serif;
+      --font-inter: 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      
+      --glow-cyan: 0 0 20px rgba(0, 245, 255, 0.25);
+      --glow-purple: 0 0 20px rgba(157, 78, 221, 0.25);
+      --glow-red: 0 0 20px rgba(239, 68, 68, 0.35);
+      --glow-green: 0 0 20px rgba(16, 185, 129, 0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--color-text);
+      font-family: var(--font-inter);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Grid overlay background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(to right, rgba(0, 245, 255, 0.012) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 245, 255, 0.012) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Floating radial glows */
+    .glow-bg-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.04) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .glow-bg-2 {
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(157, 78, 221, 0.04) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Header Bar */
+    .topbar {
+      background: rgba(5, 7, 15, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .btn-back {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-back:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-cyan);
+      background: rgba(0, 245, 255, 0.05);
+      transform: translateX(-3px);
+    }
+
+    .topbar-title h1 {
+      font-family: var(--font-outfit);
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .topbar-title p {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .mode-select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .btn-mode {
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      font-family: var(--font-outfit);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-mode.active {
+      background: var(--color-primary);
+      color: var(--bg-dark);
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+    }
+
+    .btn-control {
+      font-family: var(--font-outfit);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .btn-dr {
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      color: #fff;
+      box-shadow: var(--glow-red);
+    }
+
+    .btn-dr:hover {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-fb {
+      background: linear-gradient(135deg, var(--color-success) 0%, #064e3b 100%);
+      color: #fff;
+      box-shadow: var(--glow-green);
+    }
+
+    .btn-fb:hover {
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--color-text);
+    }
+
+    .btn-reset:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--color-text-muted);
+    }
+
+    /* Main Workspace Layout */
+    .workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Left Side: Diagram Canvas */
+    .diagram-panel {
+      overflow: auto;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 0;
+    }
+
+    .canvas-container {
+      width: 1000px;
+      height: 680px;
+      position: relative;
+      background: rgba(5, 7, 15, 0.5);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+    }
+
+    /* Region bounding boxes */
+    .region-box {
+      position: absolute;
+      top: 40px;
+      width: 440px;
+      height: 620px;
+      border: 1.5px solid rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      background: rgba(10, 15, 30, 0.25);
+      transition: all 0.4s ease;
+      padding: 1.25rem;
+    }
+
+    .region-mumbai {
+      left: 20px;
+      border-color: rgba(0, 245, 255, 0.06);
+      box-shadow: inset 0 0 30px rgba(0, 245, 255, 0.01);
+    }
+
+    .region-hyderabad {
+      left: 540px;
+      border-color: rgba(157, 78, 221, 0.06);
+      box-shadow: inset 0 0 30px rgba(157, 78, 221, 0.01);
+    }
+
+    /* Region titles */
+    .region-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .region-title {
+      font-family: var(--font-outfit);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .region-mumbai .region-title { color: var(--color-primary); }
+    .region-hyderabad .region-title { color: var(--color-secondary); }
+
+    .region-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+
+    .badge-primary-active {
+      background: rgba(0, 245, 255, 0.08);
+      border-color: rgba(0, 245, 255, 0.3);
+      color: var(--color-primary);
+      box-shadow: 0 0 8px rgba(0, 245, 255, 0.2);
+    }
+
+    .badge-standby-cold {
+      background: rgba(157, 78, 221, 0.08);
+      border-color: rgba(157, 78, 221, 0.3);
+      color: var(--color-secondary);
+    }
+
+    .badge-active-dr {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--color-success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+      animation: pulse-border 2s infinite;
+    }
+
+    .badge-critical-down {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--color-error);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+      animation: pulse-border 1.5s infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Node elements */
+    .n {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .n .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(13, 20, 38, 0.95) 0%, rgba(5, 7, 15, 0.95) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin: 0 auto 5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .n .label-box {
+      font-family: var(--font-inter);
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      line-height: 1.2;
+      transition: all 0.3s ease;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* States of nodes */
+    .n.state-active .icon-box {
+      border-color: var(--color-success);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(2, 44, 34, 0.5) 100%);
+    }
+    .n.state-active .label-box {
+      color: var(--color-success);
+      font-weight: 600;
+    }
+
+    .n.state-failed .icon-box {
+      border-color: var(--color-error);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+      background: linear-gradient(135deg, rgba(69, 10, 10, 0.6) 0%, rgba(28, 5, 5, 0.6) 100%);
+    }
+    .n.state-failed .label-box {
+      color: var(--color-error);
+      font-weight: 600;
+    }
+    .n.state-failed::after {
+      content: '✕';
+      position: absolute;
+      top: -4px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-error);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 6px var(--color-error);
+    }
+
+    .n.state-standby .icon-box {
+      border-color: rgba(255, 255, 255, 0.04);
+      opacity: 0.45;
+    }
+
+    .n.state-action-needed {
+      animation: pulse-glow 1.5s infinite;
+    }
+    .n.state-action-needed .icon-box {
+      border-color: var(--color-warning);
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.35);
+      background: linear-gradient(135deg, rgba(120, 53, 4, 0.5) 0%, rgba(69, 26, 3, 0.5) 100%);
+    }
+    .n.state-action-needed .label-box {
+      color: var(--color-warning);
+      font-weight: 600;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.06); }
+    }
+
+    /* Node-specific styles */
+    .n .badge-counter {
+      position: absolute;
+      bottom: -4px;
+      right: -6px;
+      background: var(--color-primary);
+      color: var(--bg-dark);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+      box-shadow: 0 0 6px var(--color-primary);
+      display: none;
+    }
+
+    /* SVG connections */
+    .conn-path {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: all 0.5s ease;
+    }
+
+    .path-inactive {
+      stroke: rgba(255, 255, 255, 0.03);
+      stroke-width: 1.5;
+    }
+
+    .path-active-mumbai {
+      stroke: var(--color-primary);
+      stroke-width: 2.2;
+      stroke-dasharray: 6;
+      animation: flow-dash 1.2s linear infinite;
+    }
+
+    .path-active-hyderabad {
+      stroke: var(--color-secondary);
+      stroke-width: 2.2;
+      stroke-dasharray: 6;
+      animation: flow-dash 1.2s linear infinite;
+    }
+
+    .path-active-validated {
+      stroke: var(--color-success);
+      stroke-width: 2.2;
+      stroke-dasharray: 6;
+      animation: flow-dash 1.2s linear infinite;
+    }
+
+    .path-fail {
+      stroke: rgba(239, 68, 68, 0.15);
+      stroke-width: 1.5;
+    }
+
+    .path-sync {
+      stroke: var(--color-secondary);
+      stroke-width: 1.5;
+      stroke-dasharray: 4;
+      opacity: 0.6;
+      animation: flow-dash 3s linear infinite;
+    }
+
+    .path-sync-active {
+      stroke: var(--color-success);
+      stroke-width: 2;
+      stroke-dasharray: 4;
+      animation: flow-dash-reverse 2s linear infinite;
+    }
+
+    @keyframes flow-dash {
+      to { stroke-dashoffset: -20; }
+    }
+    @keyframes flow-dash-reverse {
+      to { stroke-dashoffset: 20; }
+    }
+
+    /* Outage overlay */
+    .outage-alert-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 80%);
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+      animation: flash-red 2s infinite;
+    }
+
+    @keyframes flash-red {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Right Side: Command Console */
+    .console-panel {
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: rgba(10, 14, 25, 0.4);
+      min-height: 0;
+    }
+
+    /* Telemetry cards */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(5, 7, 15, 0.6);
+    }
+
+    .telemetry-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .telemetry-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--card-glow, var(--color-primary));
+    }
+
+    .tel-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tel-value {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-text);
+      display: flex;
+      align-items: baseline;
+      gap: 1px;
+    }
+
+    .tel-value-small {
+      font-size: 0.95rem;
+    }
+
+    .tel-status {
+      font-size: 0.65rem;
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 600;
+    }
+
+    /* Shell Terminal */
+    .terminal-container {
+      flex: 1;
+      background: #010409;
+      margin: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .terminal-header {
+      background: rgba(15, 23, 42, 0.4);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .terminal-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+    }
+
+    .terminal-body {
+      flex: 1;
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #38bdf8;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      scroll-behavior: smooth;
+      line-height: 1.4;
+    }
+
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      background: #010409;
+      color: var(--color-primary);
+    }
+
+    .terminal-prompt {
+      font-weight: 700;
+    }
+
+    .terminal-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      flex: 1;
+    }
+
+    /* Runbook Step-list */
+    .runbook-section {
+      padding: 0 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .runbook-title {
+      font-family: var(--font-outfit);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .steps-container {
+      max-height: 170px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.725rem;
+      transition: all 0.3s ease;
+    }
+
+    .step-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      background: rgba(255,255,255,0.03);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .step-label {
+      color: var(--color-text-muted);
+    }
+
+    .step-badge {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pending {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--color-text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .badge-running {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--color-warning);
+      animation: pulse-border 1.5s infinite;
+    }
+
+    .badge-done {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--color-success);
+    }
+
+    /* Active highlights */
+    .step-item.active {
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.02);
+    }
+    .step-item.active .step-label {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .step-item.done {
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+    .step-item.done .step-label {
+      color: var(--color-success);
+    }
+
+    /* Tooltip styling */
+    .node-tooltip {
+      position: absolute;
+      background: rgba(5, 10, 20, 0.95);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.65rem;
+      z-index: 1000;
+      max-width: 260px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      pointer-events: none;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .tooltip-header {
+      font-family: var(--font-outfit);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tooltip-body {
+      color: var(--color-text);
+    }
+    .tooltip-meta {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      margin-top: 0.4rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-bg-1"></div>
+  <div class="glow-bg-2"></div>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="../index.html" class="btn-back">← Portfolio</a>
+      <a href="traffic-sim.html" class="btn-back" style="margin-left: 0.4rem;">← Traffic Sim</a>
+      <a href="index.html" class="btn-back" style="margin-left: 0.4rem;">← Topology</a>
+      <a href="architecture-flow.html" class="btn-back" style="margin-left: 0.4rem;">← Flow Map</a>
+      <div class="topbar-title" style="margin-left: 1rem;">
+        <h1>🚨 MISSION CONTROL — Disaster Recovery Drill</h1>
+        <p>Active-Passive Architecture Resiliency Playground (ap-south-1 & ap-south-2)</p>
+      </div>
+    </div>
+    
+    <div class="topbar-controls">
+      <div class="mode-select">
+        <button class="btn-mode active" id="btn-mode-manual" onclick="setMode('manual')">Interactive Mode</button>
+        <button class="btn-mode" id="btn-mode-auto" onclick="setMode('auto')">Autopilot Mode</button>
+      </div>
+      <button class="btn-control btn-dr" id="dr-action-btn" onclick="triggerOutage()">Simulate Region Outage</button>
+      <button class="btn-control btn-reset" onclick="resetConsole()">⟳ Reset Sandbox</button>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main class="workspace">
+    
+    <!-- Left Section: Architectural Diagram -->
+    <div class="diagram-panel">
+      <div class="canvas-container" id="canvas-container">
+        
+        <div class="outage-alert-overlay" id="outage-overlay"></div>
+        
+        <!-- SVG Connections Layer -->
+        <svg id="svg-connections" width="1000" height="680" style="position:absolute;top:0;left:0;pointer-events:none;z-index:1;">
+          <!-- Mumbai Ingress Paths -->
+          <path d="M 230 20 L 370 60" class="conn-path path-inactive" id="p-bank-dns"/>
+          <path d="M 370 60 L 90 60" class="conn-path path-inactive" id="p-dns-waf"/>
+          <path d="M 90 60 L 230 60" class="conn-path path-inactive" id="p-waf-apigw"/>
+          <path d="M 230 60 L 90 180" class="conn-path path-inactive" id="p-apigw-nlb"/>
+          <path d="M 230 60 L 230 180" class="conn-path path-inactive" id="p-apigw-alb"/>
+          <path d="M 230 180 L 370 180" class="conn-path path-inactive" id="p-alb-eks"/>
+          <path d="M 370 180 L 150 300" class="conn-path path-inactive" id="p-eks-pods"/>
+          <path d="M 370 180 L 270 300" class="conn-path path-inactive" id="p-eks-temp"/>
+          <path d="M 370 180 L 370 300" class="conn-path path-inactive" id="p-eks-argo"/>
+          <!-- Pods to DBs -->
+          <path d="M 150 300 L 90 440" class="conn-path path-inactive" id="p-pods-rds"/>
+          <path d="M 150 300 L 200 440" class="conn-path path-inactive" id="p-pods-redis"/>
+          <path d="M 150 300 L 310 440" class="conn-path path-inactive" id="p-pods-msk"/>
+          <path d="M 150 300 L 410 440" class="conn-path path-inactive" id="p-pods-docdb"/>
+          <!-- VPN to Pods -->
+          <path d="M 150 580 L 150 300" class="conn-path path-inactive" id="p-vpn-pods"/>
+          <!-- Pods to S3 -->
+          <path d="M 150 300 L 330 580" class="conn-path path-inactive" id="p-pods-s3"/>
+
+          <!-- Cross-Region Replication Tunnels -->
+          <path d="M 90 440 Q 350 360 610 440" class="conn-path path-sync" id="p-rds-sync"/>
+          <path d="M 330 580 Q 590 500 850 580" class="conn-path path-sync" id="p-s3-sync"/>
+          <path d="M 370 60 Q 630 30 890 60" class="conn-path path-sync" id="p-dns-sync"/>
+
+          <!-- Hyderabad Ingress Paths -->
+          <path d="M 770 20 L 890 60" class="conn-path path-inactive" id="ph-bank-dns"/>
+          <path d="M 890 60 L 610 60" class="conn-path path-inactive" id="ph-dns-waf"/>
+          <path d="M 610 60 L 750 60" class="conn-path path-inactive" id="ph-waf-apigw"/>
+          <path d="M 750 60 L 610 180" class="conn-path path-inactive" id="ph-apigw-nlb"/>
+          <path d="M 750 60 L 750 180" class="conn-path path-inactive" id="ph-apigw-alb"/>
+          <path d="M 750 180 L 890 180" class="conn-path path-inactive" id="ph-alb-eks"/>
+          <path d="M 890 180 L 670 300" class="conn-path path-inactive" id="ph-eks-pods"/>
+          <path d="M 890 180 L 770 300" class="conn-path path-inactive" id="ph-eks-temp"/>
+          <path d="M 890 180 L 890 300" class="conn-path path-inactive" id="ph-eks-argo"/>
+          <!-- H-Pods to H-DBs -->
+          <path d="M 670 300 L 610 440" class="conn-path path-inactive" id="ph-pods-rds"/>
+          <path d="M 670 300 L 720 440" class="conn-path path-inactive" id="ph-pods-redis"/>
+          <path d="M 670 300 L 830 440" class="conn-path path-inactive" id="ph-pods-msk"/>
+          <path d="M 670 300 L 930 440" class="conn-path path-inactive" id="ph-pods-docdb"/>
+          <!-- H-VPN to H-Pods -->
+          <path d="M 670 580 L 670 300" class="conn-path path-inactive" id="ph-vpn-pods"/>
+          <!-- H-Pods to H-S3 -->
+          <path d="M 670 300 L 850 580" class="conn-path path-inactive" id="ph-pods-s3"/>
+        </svg>
+
+        <!-- Mumbai Region (ap-south-1) -->
+        <div class="region-box region-mumbai" id="reg-mum">
+          <div class="region-header">
+            <span class="region-title">🟦 ap-south-1 (Mumbai)</span>
+            <span class="region-badge badge-primary-active" id="badge-mum">Primary</span>
+          </div>
+        </div>
+
+        <!-- Hyderabad Region (ap-south-2) -->
+        <div class="region-box region-hyderabad" id="reg-hyd">
+          <div class="region-header">
+            <span class="region-title">🟪 ap-south-2 (Hyderabad)</span>
+            <span class="region-badge badge-standby-cold" id="badge-hyd">Standby</span>
+          </div>
+        </div>
+
+        <!-- Mumbai Nodes (Directly on Canvas) -->
+        <!-- Ingress Layer -->
+        <div class="n" id="n-dns" style="left: 370px; top: 60px;" data-node="m-dns"><div class="icon-box">🌐</div><div class="label-box">Akamai DNS</div></div>
+        <div class="n" id="n-waf" style="left: 90px; top: 60px;" data-node="m-waf"><div class="icon-box">🛡️</div><div class="label-box">AWS WAF</div></div>
+        <div class="n" id="n-apigw" style="left: 230px; top: 60px;" data-node="m-apigw"><div class="icon-box">🚪</div><div class="label-box">API Gateway</div></div>
+
+        <!-- Compute Control / Load Balancing -->
+        <div class="n" id="n-nlb" style="left: 90px; top: 180px;" data-node="m-nlb"><div class="icon-box">⚖️</div><div class="label-box">NLB</div></div>
+        <div class="n" id="n-alb" style="left: 230px; top: 180px;" data-node="m-alb"><div class="icon-box">⚖️</div><div class="label-box">ALB</div></div>
+        <div class="n" id="n-eks" style="left: 370px; top: 180px;" data-node="m-eks"><div class="icon-box">☸️</div><div class="label-box">EKS Control<br>Plane</div></div>
+
+        <!-- Pods Layer -->
+        <div class="n" id="n-pods" style="left: 150px; top: 300px;" data-node="m-pods">
+          <div class="icon-box">📦<span class="badge-counter" id="count-mum-pods">48</span></div>
+          <div class="label-box">App Pods</div>
+        </div>
+        <div class="n" id="n-temporal" style="left: 270px; top: 300px;" data-node="m-temporal"><div class="icon-box">⏱️</div><div class="label-box">Temporal</div></div>
+        <div class="n" id="n-argocd" style="left: 370px; top: 300px;" data-node="m-argocd"><div class="icon-box">🚀</div><div class="label-box">ArgoCD</div></div>
+
+        <!-- Data Databases -->
+        <div class="n" id="n-rds" style="left: 90px; top: 440px;" data-node="m-rds"><div class="icon-box">🐘</div><div class="label-box">RDS Master</div></div>
+        <div class="n" id="n-redis" style="left: 200px; top: 440px;" data-node="m-redis"><div class="icon-box">⚡</div><div class="label-box">Redis Cache</div></div>
+        <div class="n" id="n-msk" style="left: 310px; top: 440px;" data-node="m-msk"><div class="icon-box">📨</div><div class="label-box">MSK Kafka</div></div>
+        <div class="n" id="n-docdb" style="left: 410px; top: 440px;" data-node="m-docdb"><div class="icon-box">🍃</div><div class="label-box">DocumentDB</div></div>
+
+        <!-- Storage / Ext connectivity -->
+        <div class="n" id="n-vpn" style="left: 150px; top: 580px;" data-node="m-vpn"><div class="icon-box">🔗</div><div class="label-box">VGW VPN</div></div>
+        <div class="n" id="n-s3" style="left: 330px; top: 580px;" data-node="m-s3"><div class="icon-box">🪣</div><div class="label-box">S3 Primary</div></div>
+
+
+        <!-- Hyderabad Nodes (Directly on Canvas) -->
+        <!-- Ingress Layer -->
+        <div class="n" id="h-dns" style="left: 890px; top: 60px;" data-node="h-dns"><div class="icon-box">🌐</div><div class="label-box">DNS DR</div></div>
+        <div class="n" id="h-waf" style="left: 610px; top: 60px;" data-node="h-waf"><div class="icon-box">🛡️</div><div class="label-box">AWS WAF DR</div></div>
+        <div class="n" id="h-apigw" style="left: 750px; top: 60px;" data-node="h-apigw"><div class="icon-box">🚪</div><div class="label-box">API Gateway DR</div></div>
+
+        <!-- Compute Control / Load Balancing -->
+        <div class="n" id="h-nlb" style="left: 610px; top: 180px;" data-node="h-nlb"><div class="icon-box">⚖️</div><div class="label-box">NLB DR</div></div>
+        <div class="n" id="h-alb" style="left: 750px; top: 180px;" data-node="h-alb"><div class="icon-box">⚖️</div><div class="label-box">ALB DR</div></div>
+        <div class="n" id="h-eks" style="left: 890px; top: 180px;" data-node="h-eks"><div class="icon-box">☸️</div><div class="label-box">EKS DR Cluster</div></div>
+
+        <!-- Pods Layer -->
+        <div class="n" id="h-pods" style="left: 670px; top: 300px;" data-node="h-pods">
+          <div class="icon-box">📦<span class="badge-counter" id="count-hyd-pods">3</span></div>
+          <div class="label-box">App Pods</div>
+        </div>
+        <div class="n" id="h-temporal" style="left: 770px; top: 300px;" data-node="h-temporal"><div class="icon-box">⏱️</div><div class="label-box">Temporal DR</div></div>
+        <div class="n" id="h-argocd" style="left: 890px; top: 300px;" data-node="h-argocd"><div class="icon-box">🚀</div><div class="label-box">ArgoCD DR</div></div>
+
+        <!-- Data Databases -->
+        <div class="n" id="h-rds" style="left: 610px; top: 440px;" data-node="h-rds"><div class="icon-box">🐘</div><div class="label-box">RDS Replica</div></div>
+        <div class="n" id="h-redis" style="left: 720px; top: 440px;" data-node="h-redis"><div class="icon-box">⚡</div><div class="label-box">Redis DR</div></div>
+        <div class="n" id="h-msk" style="left: 830px; top: 440px;" data-node="h-msk"><div class="icon-box">📨</div><div class="label-box">MSK Kafka DR</div></div>
+        <div class="n" id="h-docdb" style="left: 930px; top: 440px;" data-node="h-docdb"><div class="icon-box">🍃</div><div class="label-box">DocumentDB DR</div></div>
+
+        <!-- Storage / Ext connectivity -->
+        <div class="n" id="h-vpn" style="left: 670px; top: 580px;" data-node="h-vpn"><div class="icon-box">🔗</div><div class="label-box">VGW DR VPN</div></div>
+        <div class="n" id="h-s3" style="left: 850px; top: 580px;" data-node="h-s3"><div class="icon-box">🪣</div><div class="label-box">S3 DR CRR</div></div>
+
+      </div>
+    </div>
+
+    <!-- Right Section: Mission Control Console -->
+    <div class="console-panel">
+      
+      <!-- Telemetry Gauges -->
+      <div class="telemetry-grid">
+        <div class="telemetry-card" id="card-sla" style="--card-glow: var(--color-success)">
+          <span class="tel-label">Global SLA Availability</span>
+          <span class="tel-value" id="val-sla">99.999%</span>
+          <span class="tel-status" id="stat-sla" style="color: var(--color-success)">✓ SLA MET</span>
+        </div>
+        <div class="telemetry-card" id="card-region" style="--card-glow: var(--color-primary)">
+          <span class="tel-label">Active Host Region</span>
+          <span class="tel-value tel-value-small" id="val-region">MUMBAI</span>
+          <span class="tel-status" id="stat-region" style="color: var(--color-primary)">● AP-SOUTH-1</span>
+        </div>
+        <div class="telemetry-card" id="card-latency" style="--card-glow: var(--color-success)">
+          <span class="tel-label">Endpoint Latency</span>
+          <span class="tel-value" id="val-latency">42ms</span>
+          <span class="tel-status" id="stat-latency" style="color: var(--color-success)">● HEALTHY</span>
+        </div>
+      </div>
+
+      <!-- Terminal shell -->
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot" style="background: var(--color-error)"></div>
+            <div class="terminal-dot" style="background: var(--color-warning)"></div>
+            <div class="terminal-dot" style="background: var(--color-success)"></div>
+          </div>
+          <span class="terminal-title">zsh — kalyan@disaster-recovery-console</span>
+        </div>
+        <div class="terminal-body" id="term-body">
+          <div>[SYSTEM MONITOR] Telemetry online. Systems operational in Mumbai (ap-south-1).</div>
+          <div>Available commands: <span style="color: var(--color-primary)">help</span>, <span style="color: var(--color-primary)">ls</span>, <span style="color: var(--color-primary)">cat runbook.sh</span>.</div>
+          <div>To trigger failover run: <span style="color: var(--color-primary)">./dr_failover.py --direction mum-to-hyd</span></div>
+        </div>
+        <div class="terminal-input-row">
+          <span class="terminal-prompt" id="term-prompt">sre@dr-commander:~$</span>
+          <input type="text" class="terminal-input" id="term-input" autocomplete="off" placeholder="Run command or respond..." autofocus>
+        </div>
+      </div>
+
+      <!-- Runbook progress checklist -->
+      <div class="runbook-section">
+        <span class="runbook-title" id="runbook-header">Disaster Recovery Checklist</span>
+        <div class="steps-container" id="steps-container">
+          <!-- Dynamically generated runbook steps -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Node Description Tooltip -->
+  <div class="node-tooltip" id="node-tooltip">
+    <div class="tooltip-header" id="tooltip-title">Node Info</div>
+    <div class="tooltip-body" id="tooltip-desc">Description details.</div>
+    <div class="tooltip-meta" id="tooltip-meta">Identifier: AWS::EKS::Cluster</div>
+  </div>
+
+  <!-- Simulation Control Script -->
+  <script>
+    // System Configurations
+    const FAILOVER_RUNBOOK = [
+      { id: 'trigger_alert', code: 'trigger', label: 'Disaster Outage Detected', desc: 'AWS ap-south-1 suffers catastrophic infrastructure failure. All nodes unreachable.', terminal_prompt: 'Run the recovery pipeline to proceed: ./dr_failover.py --direction mum-to-hyd' },
+      { id: 'promote_rds', code: 'rds', label: 'RDS Database Master Promotion', desc: 'Promote ap-south-2 PostgreSQL read-replica to master database.', terminal_prompt: 'Promote RDS read replica (prod-ybl-rds) to master? (y/n):', action_label: 'Promote RDS Replica', node: 'h-rds' },
+      { id: 'promote_docdb', code: 'docdb', label: 'DocumentDB Cluster Promotion', desc: 'Promote prod-ybl-mongo-hyd replica cluster to master writing instance.', terminal_prompt: 'Promote DocumentDB cluster replica (prod-ybl-mongo-hyd)? (y/n):', action_label: 'Promote DocDB', node: 'h-docdb' },
+      { id: 'switch_redis', code: 'redis', label: 'Redis Global Cache Switchover', desc: 'transition primary Cache write traffic to ElastiCache ap-south-2 group.', terminal_prompt: 'Switch Redis ElastiCache Global Datastore primary region to ap-south-2? (y/n):', action_label: 'Switch Cache Region', node: 'h-redis' },
+      { id: 'scale_eks', code: 'scale', label: 'Karpenter EKS Compute Autoscaling', desc: 'Scale EKS worker nodes from 3 standby nodes to 15 nodes via Karpenter to receive main traffic load.', terminal_prompt: 'Scale EKS node group capacity (3 -> 15 nodes) via Karpenter? (y/n):', action_label: 'Autoscale Nodes', node: 'h-eks' },
+      { id: 'warm_cache', code: 'warm', label: 'Cache DB Key Warming Loop', desc: 'Warm up Redis Cache servers with critical B2B bank metadata queries from primary RDS.', terminal_prompt: 'Perform database warming processes on caching layer? (y/n):', action_label: 'Warm Up Caches', node: 'h-redis' },
+      { id: 'switch_kafka', code: 'kafka', label: 'MSK Kafka Broker Rebalancing', desc: 'Point application consumers to regional MSK brokers in ap-south-2.', terminal_prompt: 'Rebalance Kafka topic consumers to Hyderabad brokers? (y/n):', action_label: 'Switch MSK Routing', node: 'h-msk' },
+      { id: 'activate_vpn', code: 'vpn', label: 'B2B Site VPN Tunnel Switch', desc: 'Activate YESBANK_VPN_DR tunnels for encrypted banking transaction paths.', terminal_prompt: 'Activate B2B Banking site tunnel routes to Hyderabad? (y/n):', action_label: 'Activate VPN Tunnels', node: 'h-vpn' },
+      { id: 'dns_failover', code: 'dns', label: 'DNS CNAME Records Update', desc: 'Reroute Route 53 and Akamai global DNS entries to Hyderabad Network Load Balancers.', terminal_prompt: 'Reroute Akamai Global DNS records to Hyderabad? (y/n):', action_label: 'Update DNS records', node: 'h-dns' },
+      { id: 'validate_traffic', code: 'validate', label: 'Pre-flight Traffic Verification', desc: 'Send synthetic checks to verify api.vegapay.tech routing and DB write loops.', terminal_prompt: 'Run automated end-to-end integration tests? (y/n):', action_label: 'Run Pre-flight', node: 'h-dns' }
+    ];
+
+    const FAILBACK_RUNBOOK = [
+      { id: 'mum_recover', code: 'mum_recover', label: 'Mumbai Site Recovery Verification', desc: 'Power grids & fibers restored in ap-south-1. EKS API control plane online.', terminal_prompt: 'Initiate failback pipeline script: ./dr_failback.py --direction hyd-to-mum' },
+      { id: 'rds_resync', code: 'rds_resync', label: 'PostgreSQL Database Reverse Resync', desc: 'Establish replication stream from Hyderabad master back to Mumbai.', terminal_prompt: 'Resynchronize data back to Mumbai primary PostgreSQL RDS? (y/n):', action_label: 'Resync Databases', node: 'n-rds' },
+      { id: 'eks_restore', code: 'eks_restore', label: 'EKS Mumbai Workloads Sync', desc: 'Scale up EKS application nodes in Mumbai (3 -> 15) using ArgoCD git states.', terminal_prompt: 'Scale EKS node group in ap-south-1 to receive traffic? (y/n):', action_label: 'Restore EKS Nodes', node: 'n-eks' },
+      { id: 'cache_resync', code: 'cache_resync', label: 'Redis Cache & Kafka Resync', desc: 'Sync Redis Cache elements and align MSK Kafka topic consumer offsets.', terminal_prompt: 'Resynchronize caches and Kafka offsets to Mumbai? (y/n):', action_label: 'Resync Cache & Queues', node: 'n-redis' },
+      { id: 'vpn_restore', code: 'vpn_restore', label: 'VPN Direct Connection Restore', desc: 'Restore primary IPsec VPN tunnels back to Mumbai datacenter links.', terminal_prompt: 'Reroute IPsec VPN tunnels to Mumbai endpoints? (y/n):', action_label: 'Restore VPN Tunnels', node: 'n-vpn' },
+      { id: 'preflight_mum', code: 'preflight_mum', label: 'Mumbai Pre-flight Sanity Checks', desc: 'Run automated transactions against Mumbai endpoint to verify consistency.', terminal_prompt: 'Validate Mumbai endpoints with diagnostic queries? (y/n):', action_label: 'Verify Mumbai Site', node: 'n-dns' },
+      { id: 'dns_failback', code: 'dns_failback', label: 'Reroute Akamai Global DNS', desc: 'Shift global CNAME mappings back to Mumbai NLB public address pools.', terminal_prompt: 'Reroute global DNS policies to Mumbai primary NLB? (y/n):', action_label: 'Switch DNS to Mumbai', node: 'n-dns' },
+      { id: 'hyd_scaledown', code: 'hyd_scaledown', label: 'Hyderabad Teardown & Cold Standby', desc: 'Drain connections from Hyderabad, demote RDS, scale EKS back to 3 nodes.', terminal_prompt: 'Scale down Hyderabad node pools and demote DBs? (y/n):', action_label: 'Teardown Hyderabad', node: 'h-eks' }
+    ];
+
+    const NODE_METADATA = {
+      'm-dns': { title: 'Akamai DNS — Global Entry', desc: 'Routes incoming global bank API traffic. Dynamic latency routing shifts weights between Mumbai and Hyderabad.', meta: 'CNAME: api.vegapay.tech | TTL: 60s' },
+      'm-waf': { title: 'AWS WAF — Firewall', desc: 'IP rate limits and white-lists traffic profiles. Checks IP origins to block unverified requests.', meta: 'Rules: api-allow-specific-ips' },
+      'm-apigw': { title: 'Amazon API Gateway', desc: 'Exposes regional REST routing configurations. Integrated with VPC Link for private container delivery.', meta: 'Endpoint: ap-south-1.amazonaws.com' },
+      'm-nlb': { title: 'Network Load Balancer', desc: 'High throughput Layer 4 load balancer mapping incoming connections to container group targets.', meta: 'Type: Internal | VPC Link target' },
+      'm-alb': { title: 'Application Load Balancer', desc: 'Layer 7 HTTP load balancer directing routes directly to application pods inside EKS.', meta: 'Type: Internal | Target: Application Services' },
+      'm-eks': { title: 'Amazon EKS Control Plane', desc: 'Manages core container orchestration, master nodes, and api servers.', meta: 'Kubernetes version: 1.33 | Nodes: 15 active' },
+      'm-pods': { title: 'EKS Application Pods', desc: '48+ B2B microservices (account, transaction, auth, ledgers, PG integrations). scaled on m6g.xlarge Graviton nodes.', meta: 'Replicas: 48 active | Arch: ARM64' },
+      'm-temporal': { title: 'Temporal Orchestrator', desc: 'Coordinates background workflow actions like daily ledger settlement recon runs.', meta: 'Nodes: 3 x t3.medium' },
+      'm-argocd': { title: 'ArgoCD Deployment GitOps', desc: 'Synchronizes git cluster files directly into running Kubernetes services.', meta: 'Repository: github/kalyanace44/k8s-infra' },
+      'm-rds': { title: 'Amazon RDS PostgreSQL', desc: 'Primary relational database (db.m7g.2xlarge). Multi-AZ enabled. Active master for writes.', meta: 'Instance: prod-ybl-rds | Engine: PG 14.17' },
+      'm-redis': { title: 'ElastiCache Redis cluster', desc: 'Caches critical bank parameters, white-lists, config variables, and security keys.', meta: 'Engine: Redis 7.1 | Nodes: 2 x cache.t4g.micro' },
+      'm-msk': { title: 'Amazon MSK Kafka', desc: 'Event stream queue managing billing write events and ledger streams asynchronously.', meta: 'Instance: prod-yesbank-msk-v1 | Brokers: 3' },
+      'm-docdb': { title: 'Amazon DocumentDB', desc: 'MongoDB-compatible document database storing user credentials and audit profile caches.', meta: 'Instance: prod-ybl-mongo | Engine: DocDB 5.0' },
+      'm-vpn': { title: 'AWS Site-to-Site VPN', desc: 'Secure IPsec VPN tunnel links directly back to the B2B datacenter core of YesBank.', meta: 'Tunnel 1: UP | Tunnel 2: UP' },
+      'm-s3': { title: 'Amazon S3 Bucket Store', desc: 'Durable object storage caching statement PDFs, raw logs, and transaction CSV data.', meta: 'Bucket: prod-ybl-billing-s3-mum' },
+      
+      // Hyderabad nodes
+      'h-dns': { title: 'Akamai DNS — Global Entry (DR)', desc: 'Backup route target. TTL checks wait to transition global records to Hyderabad.', meta: 'CNAME: api.vegapay.tech | TTL: 60s' },
+      'h-waf': { title: 'AWS WAF (ap-south-2)', desc: 'Standby WAF matching Mumbai firewall constraints, keeping compliance in failover.', meta: 'Rules: identical parity config' },
+      'h-apigw': { title: 'API Gateway (ap-south-2)', desc: 'Exposes matching DR routes. Standby state until CNAME update resolves to Hyderabad.', meta: 'Endpoint: ap-south-2.amazonaws.com' },
+      'h-nlb': { title: 'Network Load Balancer (DR)', desc: 'Standby Layer 4 load balancer targeting Hyderabad local application ALB.', meta: 'Type: Internal | Standby state' },
+      'h-alb': { title: 'Application Load Balancer (DR)', desc: 'Standby Layer 7 HTTP load balancer directing routes to DR pods.', meta: 'Type: Internal' },
+      'h-eks': { title: 'Amazon EKS DR Cluster', desc: 'Standby cluster. Configured with identical pods in scaled-down standby state.', meta: 'Nodes: 3 active (standby limit)' },
+      'h-pods': { title: 'EKS Application Pods (DR)', desc: 'Replicated pods running on cold standby. Will scale to full load during EKS scale-up.', meta: 'Replicas: 3 active | Target: 48 pods' },
+      'h-temporal': { title: 'Temporal Orchestrator (DR)', desc: 'Replicated workflow workers ready to pick up Recon schedules during failover.', meta: 'Nodes: 3 active' },
+      'h-argocd': { title: 'ArgoCD GitOps (DR)', desc: 'Pulls git state to quickly sync application updates to ap-south-2.', meta: 'Status: Standby sync' },
+      'h-rds': { title: 'Amazon RDS (ap-south-2)', desc: 'PostgreSQL read-replica receiving master WAL logs. Read-only until promoted to Master.', meta: 'Instance: prod-ybl-rds-hyd | Role: READ REPLICA' },
+      'h-redis': { title: 'ElastiCache Redis (ap-south-2)', desc: 'Global datastore replication target. Read-only cache keeping config parity.', meta: 'Role: global-replication-group-replica' },
+      'h-msk': { title: 'Amazon MSK Kafka (DR)', desc: 'DR broker cluster synced via MirrorMaker2 from ap-south-1 MSK.', meta: 'Brokers: 3 | Sync status: Catching up' },
+      'h-docdb': { title: 'Amazon DocumentDB (DR)', desc: 'DR DocumentDB cluster replica keeping document caches updated.', meta: 'Role: Database Cluster Replica' },
+      'h-vpn': { title: 'AWS Site VPN (ap-south-2)', desc: 'Standby IPsec tunnel endpoints. Activated by Bank CGW route changes.', meta: 'Tunnel 1: DOWN (Standby) | Tunnel 2: DOWN' },
+      'h-s3': { title: 'Amazon S3 (ap-south-2)', desc: 'Cross-Region Replication target bucket synchronizing Mumbai S3 objects.', meta: 'Bucket: prod-ybl-billing-s3-hyd | CRR Sync: Active' }
+    };
+
+    // State Machine Variables
+    let currentMode = 'manual'; // manual, auto
+    let currentProcess = 'idle'; // idle, failover, failback
+    let currentStepIndex = 0;
+    
+    let slaValue = 99.999;
+    let slaTimer = null;
+    let elapsedSec = 0;
+    let elapsedTimer = null;
+    let nodeCapacity = 3;
+    let activeLatency = 42;
+
+    // Initialize Page elements
+    window.onload = function() {
+      setupNodeHoverTooltips();
+      setupInteractiveNodeClicks();
+      renderRunbookChecklist();
+      resetConsole();
+
+      // Keyboard input listener
+      document.getElementById('term-input').addEventListener('keydown', handleTerminalInput);
+    };
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('btn-mode-manual').classList.toggle('active', mode === 'manual');
+      document.getElementById('btn-mode-auto').classList.toggle('active', mode === 'auto');
+      appendLog(`[SYSTEM] Switched console mode to: ${mode.toUpperCase()} MODE.`, 'var(--color-primary)');
+    }
+
+    // Render Checklist
+    function renderRunbookChecklist() {
+      const container = document.getElementById('steps-container');
+      container.innerHTML = '';
+      
+      const activeRunbook = currentProcess === 'failback' ? FAILBACK_RUNBOOK : FAILOVER_RUNBOOK;
+      document.getElementById('runbook-header').textContent = currentProcess === 'failback' ? 'Disaster Recovery Failback Runbook' : 'Disaster Recovery Failover Runbook';
+
+      activeRunbook.forEach((step, idx) => {
+        const item = document.createElement('div');
+        item.className = 'step-item';
+        item.id = `step-card-${idx}`;
+        
+        item.innerHTML = `
+          <div class="step-info">
+            <span class="step-num">${idx + 1}</span>
+            <span class="step-label">${step.label}</span>
+          </div>
+          <span class="step-badge badge-pending" id="step-badge-${idx}">Pending</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Terminal logging helper
+    function appendLog(text, color = 'var(--color-text)') {
+      const termBody = document.getElementById('term-body');
+      const logRow = document.createElement('div');
+      logRow.style.color = color;
+      logRow.innerHTML = text;
+      termBody.appendChild(logRow);
+      termBody.scrollTop = termBody.scrollHeight;
+    }
+
+    // Setup interactive tooltips on nodes
+    function setupNodeHoverTooltips() {
+      const tooltip = document.getElementById('node-tooltip');
+      const nodes = document.querySelectorAll('.n');
+
+      nodes.forEach(node => {
+        node.addEventListener('mouseenter', (e) => {
+          const nodeId = node.getAttribute('data-node');
+          const data = NODE_METADATA[nodeId];
+          if (!data) return;
+
+          document.getElementById('tooltip-title').textContent = data.title;
+          document.getElementById('tooltip-desc').textContent = data.desc;
+          document.getElementById('tooltip-meta').textContent = data.meta;
+
+          const rect = node.getBoundingClientRect();
+          const canvasRect = document.getElementById('canvas-container').getBoundingClientRect();
+          
+          tooltip.style.left = (rect.left - canvasRect.left + rect.width / 2 + 10) + 'px';
+          tooltip.style.top = (rect.top - canvasRect.top - 20) + 'px';
+          tooltip.style.display = 'block';
+        });
+
+        node.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+      });
+    }
+
+    // Setup clicks on nodes to execute runbook steps
+    function setupInteractiveNodeClicks() {
+      const nodes = document.querySelectorAll('.n');
+      nodes.forEach(node => {
+        node.addEventListener('click', () => {
+          if (currentMode !== 'manual' || currentProcess === 'idle') return;
+          
+          const nodeId = node.id;
+          const activeRunbook = currentProcess === 'failback' ? FAILBACK_RUNBOOK : FAILOVER_RUNBOOK;
+          const currentStep = activeRunbook[currentStepIndex];
+
+          if (currentStep && currentStep.node && (currentStep.node === nodeId || currentStep.node === node.getAttribute('data-node'))) {
+            // Match! Execute this step
+            appendLog(`[SRE ACTION] Click detected on node ${nodeId.toUpperCase()}. Running step...`, 'var(--color-primary)');
+            processStepTransition(true);
+          }
+        });
+      });
+    }
+
+    // Terminal Input Parser
+    function handleTerminalInput(e) {
+      if (e.key !== 'Enter') return;
+      
+      const inputVal = e.target.value.trim();
+      e.target.value = '';
+      if (!inputVal) return;
+
+      appendLog(`sre@dr-commander:~$ ${inputVal}`, 'var(--color-primary)');
+      const cmd = inputVal.toLowerCase();
+
+      // Check system commands
+      if (cmd === 'clear') {
+        document.getElementById('term-body').innerHTML = '';
+        return;
+      }
+      if (cmd === 'help') {
+        appendLog(`Available system commands:
+  - <span style="color: var(--color-primary)">ls</span>               : List workspace scripts
+  - <span style="color: var(--color-primary)">cat runbook.sh</span>   : Display disaster recovery runbook steps
+  - <span style="color: var(--color-primary)">./dr_failover.py</span>   : Execute Mumbai to Hyderabad failover pilot script
+  - <span style="color: var(--color-primary)">./dr_failback.py</span>   : Execute Hyderabad to Mumbai recovery restore script
+  - <span style="color: var(--color-primary)">clear</span>            : Flush terminal logs`);
+        return;
+      }
+      if (cmd === 'ls') {
+        appendLog(`<span style="color: var(--color-primary)">dr_failover.py*</span>    <span style="color: var(--color-primary)">dr_failback.py*</span>    runbook_checklist.txt    sys_topology.json`);
+        return;
+      }
+      if (cmd === 'cat runbook.sh' || cmd === 'cat runbook_checklist.txt') {
+        appendLog(`AWS DR RUNBOOK CHECKLIST:
+1. Promote RDS databases to master
+2. Failover DocumentDB storage clusters
+3. Point ElastiCache global cache write nodes to DR region
+4. Trigger Karpenter autoscaler to provision EKS compute capacity (3 -> 15 worker nodes)
+5. Execute db cache warm up queries
+6. Rebalance MSK Kafka brokers and consumers
+7. Establish IPSec site tunnels over backup DR VPN
+8. Route global CNAME records to Hyderabad NLBs
+9. Pre-flight health and write validations`);
+        return;
+      }
+
+      // Start scripts check
+      if (cmd.startsWith('./dr_failover.py')) {
+        if (currentProcess !== 'idle') {
+          appendLog(`[ERROR] A process is already running. Reset or complete the current run.`, 'var(--color-error)');
+          return;
+        }
+        if (cmd === './dr_failover.py' || cmd.includes('--direction mum-to-hyd')) {
+          startFailoverProcess();
+        } else {
+          appendLog(`[ERROR] Usage: ./dr_failover.py --direction mum-to-hyd`, 'var(--color-error)');
+        }
+        return;
+      }
+
+      if (cmd.startsWith('./dr_failback.py')) {
+        if (currentProcess !== 'idle') {
+          appendLog(`[ERROR] A process is already running. Reset or complete the current run.`, 'var(--color-error)');
+          return;
+        }
+        if (cmd === './dr_failback.py' || cmd.includes('--direction hyd-to-mum')) {
+          startFailbackProcess();
+        } else {
+          appendLog(`[ERROR] Usage: ./dr_failback.py --direction hyd-to-mum`, 'var(--color-error)');
+        }
+        return;
+      }
+
+      // Check runbook interactive responses (y/n)
+      if (currentProcess !== 'idle') {
+        if (cmd === 'y' || cmd === 'yes') {
+          if (currentMode === 'auto') {
+            appendLog(`[SYSTEM] Autopilot is running. Manual input ignored.`, 'var(--color-warning)');
+          } else {
+            processStepTransition(true);
+          }
+        } else if (cmd === 'n' || cmd === 'no') {
+          if (currentMode === 'auto') {
+            appendLog(`[SYSTEM] Autopilot is running. Manual input ignored.`, 'var(--color-warning)');
+          } else {
+            processStepTransition(false);
+          }
+        } else {
+          appendLog(`[WARNING] Active runbook execution in progress. Enter 'y' or 'n' to respond to the prompt, or click the flashing node.`, 'var(--color-warning)');
+        }
+        return;
+      }
+
+      appendLog(`zsh: command not found: ${inputVal}. Type 'help' for options.`, 'var(--color-error)');
+    }
+
+    // Simulation: Start Failover
+    function startFailoverProcess() {
+      currentProcess = 'failover';
+      currentStepIndex = 1; // Step 0 is trigger outage, which runs automatically
+      elapsedSec = 0;
+      
+      document.getElementById('dr-action-btn').style.display = 'none';
+      renderRunbookChecklist();
+      
+      // Mark step 0 as done since the outage is active
+      updateChecklistBadge(0, 'done');
+      
+      appendLog(`----------------------------------------------------------------`, 'var(--color-warning)');
+      appendLog(`[RUNBOOK START] Launching multi-region failover automation script...`, 'var(--color-primary)');
+      appendLog(`Configured Direction: Mumbai (ap-south-1) -> Hyderabad (ap-south-2)`, 'var(--color-text)');
+      
+      // Trigger outage metrics state
+      triggerOutageMetrics();
+
+      // Start elapsed timer
+      startElapsedTimer();
+
+      // Trigger first prompt
+      loadNextStepPrompt();
+    }
+
+    // Outage Alert Trigger
+    function triggerOutage() {
+      if (currentProcess !== 'idle') return;
+      
+      // Turn on red alerts
+      document.getElementById('outage-overlay').style.display = 'block';
+      appendLog(`[ALARM] Critical system event! AWS ap-south-1 (Mumbai) VPC reporting 100% loss of networking paths.`, 'var(--color-error)');
+      appendLog(`[SRE ALERT] Akamai reports endpoint timeout on api.vegapay.tech. Failover script required.`, 'var(--color-warning)');
+      
+      // Highlight Mumbai nodes as failed
+      setMumbaiNodesState('state-failed');
+      setRegionBadge('mum', 'badge-critical-down', '✕ DOWN');
+
+      // Update telemetry indicators
+      triggerOutageMetrics();
+      startSLADecayTimer();
+      
+      // Mark step 0 as done in checklist
+      updateChecklistBadge(0, 'done');
+    }
+
+    function triggerOutageMetrics() {
+      // Telemetry changes
+      document.getElementById('val-sla').textContent = slaValue.toFixed(4) + '%';
+      document.getElementById('val-sla').style.color = 'var(--color-error)';
+      document.getElementById('stat-sla').textContent = '❌ SLA BREACH RISK';
+      document.getElementById('stat-sla').style.color = 'var(--color-error)';
+      document.getElementById('card-sla').style.setProperty('--card-glow', 'var(--color-error)');
+
+      document.getElementById('val-region').textContent = 'OUTAGE';
+      document.getElementById('val-region').style.color = 'var(--color-error)';
+      document.getElementById('stat-region').textContent = '● CRITICAL';
+      document.getElementById('stat-region').style.color = 'var(--color-error)';
+      document.getElementById('card-region').style.setProperty('--card-glow', 'var(--color-error)');
+
+      document.getElementById('val-latency').textContent = 'TIMEOUT';
+      document.getElementById('val-latency').style.color = 'var(--color-error)';
+      document.getElementById('stat-latency').textContent = '❌ 999ms';
+      document.getElementById('stat-latency').style.color = 'var(--color-error)';
+      document.getElementById('card-latency').style.setProperty('--card-glow', 'var(--color-error)');
+      
+      // Stop sync arrows, turn replication paths off
+      setPathState('p-rds-sync', 'path-fail');
+      setPathState('p-s3-sync', 'path-fail');
+      setPathState('p-dns-sync', 'path-fail');
+
+      // Deactivate Mumbai active paths
+      const mumPaths = ['p-bank-dns', 'p-dns-waf', 'p-waf-apigw', 'p-apigw-nlb', 'p-apigw-alb', 'p-alb-eks', 'p-eks-pods', 'p-eks-temp', 'p-eks-argo', 'p-pods-rds', 'p-pods-redis', 'p-pods-msk', 'p-pods-docdb', 'p-vpn-pods', 'p-pods-s3'];
+      mumPaths.forEach(id => setPathState(id, 'path-fail'));
+    }
+
+    // Step Loader
+    function loadNextStepPrompt() {
+      const activeRunbook = currentProcess === 'failback' ? FAILBACK_RUNBOOK : FAILOVER_RUNBOOK;
+      const step = activeRunbook[currentStepIndex];
+
+      if (!step) {
+        // Complete!
+        completeProcess();
+        return;
+      }
+
+      // Mark checklist card as running
+      updateChecklistBadge(currentStepIndex, 'running');
+
+      // Add prompt log in terminal
+      appendLog(`[RUNNING STEP ${currentStepIndex}] ${step.label}`, 'var(--color-warning)');
+      appendLog(`Description: ${step.desc}`, 'var(--color-text-muted)');
+      
+      if (currentMode === 'manual') {
+        appendLog(step.terminal_prompt, 'var(--color-primary)');
+        document.getElementById('term-prompt').textContent = step.terminal_prompt;
+        
+        // Highlight matching node in UI
+        if (step.node) {
+          const el = document.getElementById(step.node);
+          if (el) el.classList.add('state-action-needed');
+        }
+      } else {
+        // Autopilot mode: wait 1.8s and run step automatically
+        setTimeout(() => {
+          appendLog(`[AUTOPILOT] Confirming y...`, 'var(--color-primary)');
+          processStepTransition(true);
+        }, 1800);
+      }
+    }
+
+    // Step Transition Processor
+    function processStepTransition(confirmed) {
+      const activeRunbook = currentProcess === 'failback' ? FAILBACK_RUNBOOK : FAILOVER_RUNBOOK;
+      const step = activeRunbook[currentStepIndex];
+      if (!step) return;
+
+      // Remove UI node flashing highlights
+      if (step.node) {
+        const el = document.getElementById(step.node);
+        if (el) el.classList.remove('state-action-needed');
+      }
+
+      if (confirmed) {
+        appendLog(`[OK] Executing step action...`, 'var(--color-success)');
+        executeStepEffects(step.id);
+        updateChecklistBadge(currentStepIndex, 'done');
+      } else {
+        appendLog(`[SKIPPED] Action bypassed by administrator. Proceeding to next step.`, 'var(--color-warning)');
+        updateChecklistBadge(currentStepIndex, 'done'); // still progress for simulation parity
+      }
+
+      currentStepIndex++;
+      
+      // Load next step
+      setTimeout(loadNextStepPrompt, 400);
+    }
+
+    // Execute node state changes in UI
+    function executeStepEffects(stepId) {
+      switch (stepId) {
+        // FAILOVER EFFECT CASES
+        case 'promote_rds':
+          setNodeState('h-rds', 'state-active');
+          document.getElementById('h-rds').querySelector('.label-box').textContent = 'RDS Master (ap-south-2)';
+          appendLog(`RDS output: Master replica database activated. Write lock removed.`, 'var(--color-success)');
+          break;
+
+        case 'promote_docdb':
+          setNodeState('h-docdb', 'state-active');
+          setPathState('ph-pods-docdb', 'path-active-hyderabad');
+          appendLog(`DocDB output: MongoDB primary clusters switched to cluster hyd-mongo-v2.`, 'var(--color-success)');
+          break;
+
+        case 'switch_redis':
+          setNodeState('h-redis', 'state-active');
+          appendLog(`Redis output: Global Replication Group switches master endpoint to cache.ap-south-2.`, 'var(--color-success)');
+          break;
+
+        case 'scale_eks':
+          setNodeState('h-eks', 'state-active');
+          setNodeState('h-pods', 'state-active');
+          setNodeState('h-argocd', 'state-active');
+          setNodeState('h-temporal', 'state-active');
+          setPathState('ph-eks-temp', 'path-active-hyderabad');
+          setPathState('ph-eks-argo', 'path-active-hyderabad');
+          
+          // Animate compute nodes scaling up
+          nodeCapacity = 15;
+          document.getElementById('count-hyd-pods').style.display = 'block';
+          animatePodCount('count-hyd-pods', 3, 48, 1000);
+          appendLog(`Karpenter output: scaled EKS capacity from 3 nodes -> 15 nodes (m6g.xlarge Graviton). 48 pods deployed.`, 'var(--color-success)');
+          break;
+
+        case 'warm_cache':
+          setPathState('ph-pods-redis', 'path-active-hyderabad');
+          appendLog(`Cache output: 45,210 white-list keys synchronized to caching layer. Cache warming complete.`, 'var(--color-success)');
+          break;
+
+        case 'switch_kafka':
+          setNodeState('h-msk', 'state-active');
+          setPathState('ph-pods-msk', 'path-active-hyderabad');
+          appendLog(`Kafka output: MSK topic consumers rebalanced successfully. consumer lag: 0.`, 'var(--color-success)');
+          break;
+
+        case 'activate_vpn':
+          setNodeState('h-vpn', 'state-active');
+          setPathState('ph-vpn-pods', 'path-active-hyderabad');
+          appendLog(`VPN output: Site tunnel (ap-south-2 to YesBank DC) reported active. CGW routes switched.`, 'var(--color-success)');
+          break;
+
+        case 'dns_failover':
+          setNodeState('h-dns', 'state-active');
+          setNodeState('h-waf', 'state-active');
+          setNodeState('h-apigw', 'state-active');
+          setNodeState('h-nlb', 'state-active');
+          setNodeState('h-alb', 'state-active');
+
+          // DNS Active connection flows
+          setPathState('ph-bank-dns', 'path-active-hyderabad');
+          setPathState('ph-dns-waf', 'path-active-hyderabad');
+          setPathState('ph-waf-apigw', 'path-active-hyderabad');
+          setPathState('ph-apigw-nlb', 'path-active-hyderabad');
+          setPathState('ph-apigw-alb', 'path-active-hyderabad');
+          setPathState('ph-alb-eks', 'path-active-hyderabad');
+          setPathState('ph-eks-pods', 'path-active-hyderabad');
+          
+          // Switch global DNS target indicator
+          document.getElementById('val-region').textContent = 'HYDERABAD';
+          document.getElementById('val-region').style.color = 'var(--color-success)';
+          document.getElementById('stat-region').textContent = '● AP-SOUTH-2 (ACTIVE)';
+          document.getElementById('stat-region').style.color = 'var(--color-success)';
+          document.getElementById('card-region').style.setProperty('--card-glow', 'var(--color-success)');
+          
+          setRegionBadge('hyd', 'badge-active-dr', '● ACTIVE (DR)');
+          break;
+
+        case 'validate_traffic':
+          setNodeState('h-s3', 'state-active');
+          setPathState('ph-pods-s3', 'path-active-validated');
+          setPathState('ph-pods-rds', 'path-active-validated');
+          
+          // Latency recovers
+          activeLatency = 14;
+          document.getElementById('val-latency').textContent = '14ms';
+          document.getElementById('val-latency').style.color = 'var(--color-success)';
+          document.getElementById('stat-latency').textContent = '● NOMINAL';
+          document.getElementById('stat-latency').style.color = 'var(--color-success)';
+          document.getElementById('card-latency').style.setProperty('--card-glow', 'var(--color-success)');
+          
+          // Availability SLA recovers
+          document.getElementById('val-sla').style.color = 'var(--color-success)';
+          document.getElementById('stat-sla').textContent = '✓ SLA MAINTAINED';
+          document.getElementById('stat-sla').style.color = 'var(--color-success)';
+          document.getElementById('card-sla').style.setProperty('--card-glow', 'var(--color-success)');
+          break;
+
+        // FAILBACK EFFECT CASES
+        case 'rds_resync':
+          setPathState('p-rds-sync', 'path-sync-active');
+          setPathState('p-pods-rds', 'path-active-mumbai');
+          setPathState('p-pods-docdb', 'path-active-mumbai');
+          appendLog(`RDS output: Catching up replica logs in Mumbai... Data parity achieved.`, 'var(--color-success)');
+          break;
+
+        case 'eks_restore':
+          setMumbaiNodesState('state-active');
+          document.getElementById('n-rds').querySelector('.label-box').textContent = 'RDS Master';
+          document.getElementById('count-mum-pods').style.display = 'block';
+          animatePodCount('count-mum-pods', 3, 48, 1000);
+          setRegionBadge('mum', 'badge-primary-active', 'Primary');
+          break;
+
+        case 'cache_resync':
+          setPathState('p-pods-redis', 'path-active-mumbai');
+          setPathState('p-pods-msk', 'path-active-mumbai');
+          appendLog(`Cache/MSK output: Redis key parity matched. MSK replication catch-up complete.`, 'var(--color-success)');
+          break;
+
+        case 'vpn_restore':
+          setPathState('p-vpn-pods', 'path-active-mumbai');
+          appendLog(`VPN output: Primary VPN tunnels to Mumbai DC restored to ACTIVE.`, 'var(--color-success)');
+          break;
+
+        case 'preflight_mum':
+          setPathState('p-pods-s3', 'path-active-mumbai');
+          setPathState('p-eks-temp', 'path-active-mumbai');
+          setPathState('p-eks-argo', 'path-active-mumbai');
+          appendLog(`Validate output: Pre-flight checks pass. Latency < 200ms. All services respond 200 OK.`, 'var(--color-success)');
+          break;
+
+        case 'dns_failback':
+          // DNS switches back to Mumbai
+          setPathState('p-bank-dns', 'path-active-mumbai');
+          setPathState('p-dns-waf', 'path-active-mumbai');
+          setPathState('p-waf-apigw', 'path-active-mumbai');
+          setPathState('p-apigw-nlb', 'path-active-mumbai');
+          setPathState('p-apigw-alb', 'path-active-mumbai');
+          setPathState('p-alb-eks', 'path-active-mumbai');
+          setPathState('p-eks-pods', 'path-active-mumbai');
+
+          // Tear down active flows in Hyderabad
+          setPathState('ph-bank-dns', 'path-inactive');
+          setPathState('ph-dns-waf', 'path-inactive');
+          setPathState('ph-waf-apigw', 'path-inactive');
+          setPathState('ph-apigw-nlb', 'path-inactive');
+          setPathState('ph-apigw-alb', 'path-inactive');
+          setPathState('ph-alb-eks', 'path-inactive');
+          setPathState('ph-eks-pods', 'path-inactive');
+
+          // Update active region telemetry
+          document.getElementById('val-region').textContent = 'MUMBAI';
+          document.getElementById('val-region').style.color = 'var(--color-text)';
+          document.getElementById('stat-region').textContent = '● AP-SOUTH-1';
+          document.getElementById('stat-region').style.color = 'var(--color-primary)';
+          document.getElementById('card-region').style.setProperty('--card-glow', 'var(--color-primary)');
+          
+          setRegionBadge('mum', 'badge-primary-active', 'Primary');
+          setRegionBadge('hyd', 'badge-standby-cold', 'Standby');
+          break;
+
+        case 'hyd_scaledown':
+          setHyderabadNodesState('state-standby');
+          document.getElementById('h-rds').querySelector('.label-box').textContent = 'RDS Replica';
+          document.getElementById('count-hyd-pods').style.display = 'block';
+          animatePodCount('count-hyd-pods', 48, 3, 1000);
+          
+          // Clear active lines in Hyderabad
+          setPathState('ph-pods-redis', 'path-inactive');
+          setPathState('ph-pods-rds', 'path-inactive');
+          setPathState('ph-pods-s3', 'path-inactive');
+          setPathState('ph-vpn-pods', 'path-inactive');
+          setPathState('ph-eks-temp', 'path-inactive');
+          setPathState('ph-eks-argo', 'path-inactive');
+          setPathState('ph-pods-docdb', 'path-inactive');
+          setPathState('ph-pods-msk', 'path-inactive');
+
+          // Re-establish replication paths
+          setPathState('p-rds-sync', 'path-sync');
+          setPathState('p-s3-sync', 'path-sync');
+          setPathState('p-dns-sync', 'path-sync');
+          break;
+      }
+    }
+
+    // Start Failback Process
+    function startFailbackProcess() {
+      currentProcess = 'failback';
+      currentStepIndex = 1;
+      elapsedSec = 0;
+
+      renderRunbookChecklist();
+      
+      // Mark step 0 as done in checklist
+      updateChecklistBadge(0, 'done');
+      
+      appendLog(`----------------------------------------------------------------`, 'var(--color-success)');
+      appendLog(`[RUNBOOK START] Launching multi-region failback restoration script...`, 'var(--color-primary)');
+      appendLog(`Configured Direction: Hyderabad (ap-south-2) -> Mumbai (ap-south-1)`, 'var(--color-text)');
+      
+      // Stop SLA Decay
+      if (slaTimer) clearInterval(slaTimer);
+      startElapsedTimer();
+      loadNextStepPrompt();
+    }
+
+    // Process Complete
+    function completeProcess() {
+      if (elapsedTimer) clearInterval(elapsedTimer);
+      if (slaTimer) clearInterval(slaTimer);
+
+      document.getElementById('term-prompt').textContent = 'sre@dr-commander:~$';
+
+      if (currentProcess === 'failover') {
+        appendLog(`----------------------------------------------------------------`, 'var(--color-success)');
+        appendLog(`[SUCCESS] DR Failover script execution finished.`, 'var(--color-success)');
+        appendLog(`Total recovery latency: ${elapsedSec}s. Uptime SLA maintained: ${slaValue.toFixed(4)}%.`, 'var(--color-primary)');
+        appendLog(`All B2B traffic successfully established on ap-south-2 (Hyderabad).`, 'var(--color-success)');
+        
+        // Disable warning overlays
+        document.getElementById('outage-overlay').style.display = 'none';
+
+        // Update actions button
+        const actionBtn = document.getElementById('dr-action-btn');
+        actionBtn.textContent = '🔄 Switch back to Mumbai';
+        actionBtn.className = 'btn-control btn-fb';
+        actionBtn.style.display = 'inline-block';
+        actionBtn.onclick = startFailbackProcess;
+      } else if (currentProcess === 'failback') {
+        appendLog(`----------------------------------------------------------------`, 'var(--color-success)');
+        appendLog(`[SUCCESS] DR Failback cycle completed successfully.`, 'var(--color-success)');
+        appendLog(`Primary platform restored to ap-south-1. ap-south-2 returned to STANDBY.`, 'var(--color-primary)');
+        
+        // Reset action button
+        const actionBtn = document.getElementById('dr-action-btn');
+        actionBtn.textContent = 'Simulate Region Outage';
+        actionBtn.className = 'btn-control btn-dr';
+        actionBtn.style.display = 'inline-block';
+        actionBtn.onclick = triggerOutage;
+      }
+      
+      currentProcess = 'idle';
+    }
+
+    // Reset All Sandbox States
+    function resetConsole() {
+      currentProcess = 'idle';
+      currentStepIndex = 0;
+      slaValue = 99.999;
+      elapsedSec = 0;
+      
+      if (slaTimer) clearInterval(slaTimer);
+      if (elapsedTimer) clearInterval(elapsedTimer);
+
+      document.getElementById('term-prompt').textContent = 'sre@dr-commander:~$';
+      document.getElementById('outage-overlay').style.display = 'none';
+
+      // Reset action button
+      const actionBtn = document.getElementById('dr-action-btn');
+      actionBtn.textContent = 'Simulate Region Outage';
+      actionBtn.className = 'btn-control btn-dr';
+      actionBtn.style.display = 'inline-block';
+      actionBtn.onclick = triggerOutage;
+
+      // Reset Nodes Mumbai
+      setMumbaiNodesState('state-active');
+      document.getElementById('n-rds').querySelector('.label-box').textContent = 'RDS Master';
+      document.getElementById('count-mum-pods').style.display = 'block';
+      document.getElementById('count-mum-pods').textContent = '48';
+      setRegionBadge('mum', 'badge-primary-active', 'Primary');
+
+      // Reset Nodes Hyderabad
+      setHyderabadNodesState('state-standby');
+      document.getElementById('h-rds').querySelector('.label-box').textContent = 'RDS Replica';
+      document.getElementById('count-hyd-pods').style.display = 'block';
+      document.getElementById('count-hyd-pods').textContent = '3';
+      setRegionBadge('hyd', 'badge-standby-cold', 'Standby');
+
+      // Reset paths
+      setPathState('p-bank-dns', 'path-active-mumbai');
+      setPathState('p-dns-waf', 'path-active-mumbai');
+      setPathState('p-waf-apigw', 'path-active-mumbai');
+      setPathState('p-apigw-nlb', 'path-active-mumbai');
+      setPathState('p-apigw-alb', 'path-active-mumbai');
+      setPathState('p-alb-eks', 'path-active-mumbai');
+      setPathState('p-eks-pods', 'path-active-mumbai');
+      setPathState('p-eks-temp', 'path-active-mumbai');
+      setPathState('p-eks-argo', 'path-active-mumbai');
+      setPathState('p-pods-rds', 'path-active-mumbai');
+      setPathState('p-pods-redis', 'path-active-mumbai');
+      setPathState('p-pods-msk', 'path-active-mumbai');
+      setPathState('p-pods-docdb', 'path-active-mumbai');
+      setPathState('p-vpn-pods', 'path-active-mumbai');
+      setPathState('p-pods-s3', 'path-active-mumbai');
+
+      // Sync paths
+      setPathState('p-rds-sync', 'path-sync');
+      setPathState('p-s3-sync', 'path-sync');
+      setPathState('p-dns-sync', 'path-sync');
+
+      // Hyderabad inactive paths
+      setPathState('ph-bank-dns', 'path-inactive');
+      setPathState('ph-dns-waf', 'path-inactive');
+      setPathState('ph-waf-apigw', 'path-inactive');
+      setPathState('ph-apigw-nlb', 'path-inactive');
+      setPathState('ph-apigw-alb', 'path-inactive');
+      setPathState('ph-alb-eks', 'path-inactive');
+      setPathState('ph-eks-pods', 'path-inactive');
+      setPathState('ph-eks-temp', 'path-inactive');
+      setPathState('ph-eks-argo', 'path-inactive');
+      setPathState('ph-pods-rds', 'path-inactive');
+      setPathState('ph-pods-redis', 'path-inactive');
+      setPathState('ph-pods-msk', 'path-inactive');
+      setPathState('ph-pods-docdb', 'path-inactive');
+      setPathState('ph-vpn-pods', 'path-inactive');
+      setPathState('ph-pods-s3', 'path-inactive');
+
+      // Reset Telemetry cards
+      document.getElementById('val-sla').textContent = '99.999%';
+      document.getElementById('val-sla').style.color = 'var(--color-text)';
+      document.getElementById('stat-sla').textContent = '✓ SLA MET';
+      document.getElementById('stat-sla').style.color = 'var(--color-success)';
+      document.getElementById('card-sla').style.setProperty('--card-glow', 'var(--color-success)');
+
+      document.getElementById('val-region').textContent = 'MUMBAI';
+      document.getElementById('val-region').style.color = 'var(--color-text)';
+      document.getElementById('stat-region').textContent = '● AP-SOUTH-1';
+      document.getElementById('stat-region').style.color = 'var(--color-primary)';
+      document.getElementById('card-region').style.setProperty('--card-glow', 'var(--color-primary)');
+
+      document.getElementById('val-latency').textContent = '42ms';
+      document.getElementById('val-latency').style.color = 'var(--color-text)';
+      document.getElementById('stat-latency').textContent = '● HEALTHY';
+      document.getElementById('stat-latency').style.color = 'var(--color-success)';
+      document.getElementById('card-latency').style.setProperty('--card-glow', 'var(--color-success)');
+
+      renderRunbookChecklist();
+      appendLog(`[SYSTEM] Sandbox console states reset. Platform nominal in ap-south-1.`, 'var(--color-success)');
+    }
+
+    // Helper: Modify region nodes
+    function setMumbaiNodesState(stateClass) {
+      const mumNodes = ['n-dns', 'n-waf', 'n-apigw', 'n-nlb', 'n-alb', 'n-eks', 'n-pods', 'n-temporal', 'n-argocd', 'n-rds', 'n-redis', 'n-msk', 'n-docdb', 'n-vpn', 'n-s3'];
+      mumNodes.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = 'n';
+          el.classList.add(stateClass);
+        }
+      });
+    }
+
+    function setHyderabadNodesState(stateClass) {
+      const hydNodes = ['h-dns', 'h-waf', 'h-apigw', 'h-nlb', 'h-alb', 'h-eks', 'h-pods', 'h-temporal', 'h-argocd', 'h-rds', 'h-redis', 'h-msk', 'h-docdb', 'h-vpn', 'h-s3'];
+      hydNodes.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = 'n';
+          el.classList.add(stateClass);
+        }
+      });
+    }
+
+    function setNodeState(nodeId, stateClass) {
+      const el = document.getElementById(nodeId);
+      if (el) {
+        el.className = 'n';
+        el.classList.add(stateClass);
+      }
+    }
+
+    function setPathState(pathId, stateClass) {
+      const el = document.getElementById(pathId);
+      if (el) {
+        el.setAttribute('class', `conn-path ${stateClass}`);
+      }
+    }
+
+    function setRegionBadge(reg, badgeClass, text) {
+      const el = document.getElementById(`badge-${reg}`);
+      if (el) {
+        el.className = `region-badge ${badgeClass}`;
+        el.textContent = text;
+      }
+    }
+
+    function updateChecklistBadge(idx, state) {
+      const badge = document.getElementById(`step-badge-${idx}`);
+      const card = document.getElementById(`step-card-${idx}`);
+      
+      if (!badge || !card) return;
+      
+      card.className = 'step-item';
+      badge.className = 'step-badge';
+
+      if (state === 'pending') {
+        badge.classList.add('badge-pending');
+        badge.textContent = 'Pending';
+      } else if (state === 'running') {
+        card.classList.add('active');
+        badge.classList.add('badge-running');
+        badge.textContent = 'Running';
+        
+        // Scroll the card into view within the container, preventing window scroll
+        const container = document.getElementById('steps-container');
+        if (container) {
+          const containerTop = container.scrollTop;
+          const containerBottom = containerTop + container.clientHeight;
+          const elemTop = card.offsetTop;
+          const elemBottom = elemTop + card.offsetHeight;
+          if (elemTop < containerTop) {
+            container.scrollTo({ top: elemTop, behavior: 'smooth' });
+          } else if (elemBottom > containerBottom) {
+            container.scrollTo({ top: elemBottom - container.clientHeight, behavior: 'smooth' });
+          }
+        }
+      } else if (state === 'done') {
+        card.classList.add('done');
+        badge.classList.add('badge-done');
+        badge.textContent = 'Success';
+      }
+    }
+
+    // SLA Decay timer
+    function startSLADecayTimer() {
+      if (slaTimer) clearInterval(slaTimer);
+      slaTimer = setInterval(() => {
+        slaValue -= 0.0007 + Math.random() * 0.0003;
+        document.getElementById('val-sla').textContent = slaValue.toFixed(4) + '%';
+        
+        if (slaValue < 99.90) {
+          document.getElementById('val-sla').style.color = '#ef4444';
+        }
+      }, 800);
+    }
+
+    // Runbook execution timer
+    function startElapsedTimer() {
+      if (elapsedTimer) clearInterval(elapsedTimer);
+      elapsedTimer = setInterval(() => {
+        elapsedSec++;
+      }, 1000);
+    }
+
+    // Animate pod counter scaling
+    function animatePodCount(elemId, start, end, duration) {
+      const obj = document.getElementById(elemId);
+      const range = end - start;
+      const minTimer = 50;
+      let stepTime = Math.abs(Math.floor(duration / range));
+      stepTime = Math.max(stepTime, minTimer);
+      
+      const startTime = new Date().getTime();
+      const endTime = startTime + duration;
+      let timer;
+      
+      function run() {
+        const now = new Date().getTime();
+        const remaining = Math.max((endTime - now) / duration, 0);
+        const value = Math.round(end - (remaining * range));
+        obj.textContent = value;
+        if (value == end) {
+          clearInterval(timer);
+        }
+      }
+      
+      timer = setInterval(run, stepTime);
+      run();
+    }
+  </script>
+</body>
+</html>
