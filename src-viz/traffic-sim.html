@@ -18,6 +18,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
+  
+
+  /* Premium Cyber-Obsidian Design Tokens */
+  :root {
+    --bg-dark: #05070f;
+    --bg-panel: rgba(10, 15, 28, 0.85);
+    --bg-card: rgba(20, 27, 47, 0.45);
+    --border-color: rgba(255, 255, 255, 0.05);
+    --border-glow: rgba(0, 245, 255, 0.1);
+    
+    --color-primary: #00f5ff;       /* Neon Cyan */
+    --color-secondary: #9d4edd;     /* Purple */
+    --color-success: #10b981;       /* Emerald Green */
+    --color-warning: #f59e0b;       /* Amber Gold */
+    --color-error: #ef4444;         /* Neon Red */
+    --color-text: #f3f4f6;
+    --color-text-muted: #8b9bb4;
+    
+    --font-outfit: 'Outfit', sans-serif;
+    --font-inter: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    
+    --glow-cyan: 0 0 15px rgba(0, 245, 255, 0.25);
+    --glow-purple: 0 0 15px rgba(168, 85, 247, 0.25);
+    --glow-green: 0 0 15px rgba(16, 185, 129, 0.25);
+    --glow-red: 0 0 15px rgba(239, 68, 68, 0.25);
+  }
+
   body, header, footer, main, section, div, span, p, h1, h2, h3, h4, input, button, select, a, svg, canvas {
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
   }
@@ -120,31 +148,6 @@
   html.light-theme .theme-toggle-btn .sun-icon { display: none; }
   html.light-theme .theme-toggle-btn .moon-icon { display: block; }
 
-  /* Premium Cyber-Obsidian Design Tokens */
-  :root {
-    --bg-dark: #05070f;
-    --bg-panel: rgba(10, 15, 28, 0.85);
-    --bg-card: rgba(20, 27, 47, 0.45);
-    --border-color: rgba(255, 255, 255, 0.05);
-    --border-glow: rgba(0, 245, 255, 0.1);
-    
-    --color-primary: #00f5ff;       /* Neon Cyan */
-    --color-secondary: #9d4edd;     /* Purple */
-    --color-success: #10b981;       /* Emerald Green */
-    --color-warning: #f59e0b;       /* Amber Gold */
-    --color-error: #ef4444;         /* Neon Red */
-    --color-text: #f3f4f6;
-    --color-text-muted: #8b9bb4;
-    
-    --font-outfit: 'Outfit', sans-serif;
-    --font-inter: 'Inter', sans-serif;
-    --font-mono: 'Fira Code', monospace;
-    
-    --glow-cyan: 0 0 15px rgba(0, 245, 255, 0.25);
-    --glow-purple: 0 0 15px rgba(168, 85, 247, 0.25);
-    --glow-green: 0 0 15px rgba(16, 185, 129, 0.25);
-    --glow-red: 0 0 15px rgba(239, 68, 68, 0.25);
-  }
 
   * {
     margin: 0;

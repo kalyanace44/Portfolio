@@ -421,6 +421,36 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     // SHA-256 hash of the password "kiro-secure-2026"
     const CORRECT_HASH = '02a47c9b38911c6bb8cda2189b0e4fcb6eb4fff0ae7b638b77527f1632282aed';
 
+    // Cookie management helpers for session authentication
+    function setSessionCookie(name, value) {
+      try {
+        // Set cookie without expires attribute to make it a session cookie.
+        // On local file:// protocol, setting cookies may fail, so sessionStorage is used as fallback.
+        document.cookie = name + "=" + encodeURIComponent(value) + "; path=/; SameSite=Strict";
+      } catch (e) {
+        console.warn("Failed to set session cookie:", e);
+      }
+    }
+
+    // Get cookie utility
+    function getCookie(name) {
+      try {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
+      } catch (e) {
+        console.warn("Failed to get session cookie:", e);
+      }
+      return null;
+    }
+
+    // Erase cookie utility
+    function eraseCookie(name) {
+      try {
+        document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+      } catch (e) {}
+    }
+
     // Decrypt and replace document stream
     function decryptAndRender(passwordVal) {
       try {
@@ -428,9 +458,17 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
         const decryptedHtml = decrypted.toString(CryptoJS.enc.Utf8);
         
         if (decryptedHtml.startsWith('<!DOCTYPE html>') || decryptedHtml.includes('html') || decryptedHtml.length > 500) {
-          // Success! Save auth parameters to localStorage for tab/session sync
-          localStorage.setItem('portfolio_auth_key', passwordVal);
-          localStorage.setItem('portfolio_auth_token', CORRECT_HASH);
+          // Success! Save auth parameters to Session Cookie and sessionStorage for tab/session sync
+          setSessionCookie('portfolio_auth_key', passwordVal);
+          try {
+            sessionStorage.setItem('portfolio_auth_key', passwordVal);
+          } catch (e) {}
+
+          // Remove legacy localStorage authentication parameters to avoid permanent login
+          try {
+            localStorage.removeItem('portfolio_auth_key');
+            localStorage.removeItem('portfolio_auth_token');
+          } catch (e) {}
           
           // Re-write document stream with decrypted markup
           document.open();
@@ -444,13 +482,15 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       return false;
     }
 
-    // Auto-decrypt if valid auth key already exists
-    const savedKey = localStorage.getItem('portfolio_auth_key');
+    // Auto-decrypt if valid session credentials exist
+    const savedKey = getCookie('portfolio_auth_key') || sessionStorage.getItem('portfolio_auth_key');
     if (savedKey) {
       const success = decryptAndRender(savedKey);
       if (!success) {
-        localStorage.removeItem('portfolio_auth_key');
-        localStorage.removeItem('portfolio_auth_token');
+        eraseCookie('portfolio_auth_key');
+        try {
+          sessionStorage.removeItem('portfolio_auth_key');
+        } catch (e) {}
       }
     }
 
