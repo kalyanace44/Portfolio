@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 // Target password and files
-const PASSWORD = 'kiro-secure-2026';
+const PASSWORD = 'aws-traffic-2026';
 const SRC_DIR = path.join(__dirname, 'src-viz');
 const DIST_DIR = path.join(__dirname, 'aws-architecture-viz');
 
@@ -418,8 +418,8 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     // Encrypted content data (Base64 payload compatible with CryptoJS)
     const ciphertext = "${encryptedPayload}";
 
-    // SHA-256 hash of the password "kiro-secure-2026"
-    const CORRECT_HASH = '02a47c9b38911c6bb8cda2189b0e4fcb6eb4fff0ae7b638b77527f1632282aed';
+    // SHA-256 hash of the password "aws-traffic-2026"
+    const CORRECT_HASH = 'f2e15f71628034ebfe8c173d060d205ca5f92b3367592a301caccc7aca6e19e6';
 
     // Cookie management helpers for session authentication
     function setSessionCookie(name, value) {
@@ -464,10 +464,17 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
             sessionStorage.setItem('portfolio_auth_key', passwordVal);
           } catch (e) {}
 
-          // Remove legacy localStorage authentication parameters to avoid permanent login
+          // For local testing on file:// protocol (which isolates sessionStorage per file path),
+          // fallback to localStorage so the credentials remain universal without prompting again.
+          // On HTTP/HTTPS production, we keep it session-only by removing localStorage credentials.
           try {
-            localStorage.removeItem('portfolio_auth_key');
-            localStorage.removeItem('portfolio_auth_token');
+            if (window.location.protocol === 'file:') {
+              localStorage.setItem('portfolio_auth_key', passwordVal);
+              localStorage.setItem('portfolio_auth_token', CORRECT_HASH);
+            } else {
+              localStorage.removeItem('portfolio_auth_key');
+              localStorage.removeItem('portfolio_auth_token');
+            }
           } catch (e) {}
           
           // Re-write document stream with decrypted markup
@@ -483,13 +490,17 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     }
 
     // Auto-decrypt if valid session credentials exist
-    const savedKey = getCookie('portfolio_auth_key') || sessionStorage.getItem('portfolio_auth_key');
+    const savedKey = getCookie('portfolio_auth_key') || 
+                     sessionStorage.getItem('portfolio_auth_key') || 
+                     (window.location.protocol === 'file:' ? localStorage.getItem('portfolio_auth_key') : null);
     if (savedKey) {
       const success = decryptAndRender(savedKey);
       if (!success) {
         eraseCookie('portfolio_auth_key');
         try {
           sessionStorage.removeItem('portfolio_auth_key');
+          localStorage.removeItem('portfolio_auth_key');
+          localStorage.removeItem('portfolio_auth_token');
         } catch (e) {}
       }
     }

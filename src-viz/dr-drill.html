@@ -50,30 +50,53 @@
       transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
     }
     html.light-theme {
+      font-size: 18px !important;            /* Increment rem font sizing by 2 points */
       --bg-dark: #f2efe9;
-      --bg-panel: rgba(243, 240, 234, 0.85);
-      --bg-card: rgba(235, 231, 223, 0.6);
-      --border-color: rgba(110, 96, 92, 0.12);
-      --border-glow: rgba(212, 138, 151, 0.25);
+      --bg-panel: rgba(243, 240, 234, 0.92);
+      --bg-card: rgba(235, 231, 223, 0.7);
+      --border-color: rgba(90, 76, 72, 0.35); /* Darker and thicker looking borders */
+      --border-glow: rgba(212, 138, 151, 0.4);
       --color-primary: #000000;
-      --color-secondary: #d48a97;
-      --color-success: #10b981;
+      --color-secondary: #b66a77;            /* Darker blushing rose */
+      --color-success: #059669;
       --color-warning: #d97706;
       --color-error: #dc2626;
-      --color-text: #1a1a1a;
-      --color-text-muted: #6e605c;
-      --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.08);
-      --glow-purple: 0 0 15px rgba(212, 138, 151, 0.15);
-      --glow-red: 0 0 15px rgba(220, 38, 38, 0.1);
-      --glow-green: 0 0 15px rgba(16, 185, 129, 0.1);
-      --grid-color: rgba(212, 138, 151, 0.055);
-      --glow-color-1: rgba(212, 138, 151, 0.09);
-      --glow-color-2: rgba(0, 0, 0, 0.03);
-      --bg-header: rgba(242, 239, 233, 0.85);
+      --color-text: #050505;                 /* Deep rich black */
+      --color-text-muted: #4e403c;           /* Dark slate brown */
+      --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.12);
+      --glow-purple: 0 0 15px rgba(212, 138, 151, 0.22);
+      --glow-red: 0 0 15px rgba(220, 38, 38, 0.15);
+      --glow-green: 0 0 15px rgba(16, 185, 129, 0.15);
+      --grid-color: rgba(212, 138, 151, 0.08);
+      --glow-color-1: rgba(212, 138, 151, 0.12);
+      --glow-color-2: rgba(0, 0, 0, 0.04);
+      --bg-header: rgba(242, 239, 233, 0.92);
       --bg-diagram: #eae4da;
-      --color-diagram-text: #1a1a1a;
-      --cursor-ring-color: rgba(212, 138, 151, 0.45);
+      --color-diagram-text: #0a0a0a;
+      --cursor-ring-color: rgba(212, 138, 151, 0.6);
     }
+
+    /* Thicker borders in light mode for all main modules */
+    html.light-theme .console-panel,
+    html.light-theme .diagram-panel,
+    html.light-theme .sidebar,
+    html.light-theme .info-panel,
+    html.light-theme .terminal-container,
+    html.light-theme .terminal-header,
+    html.light-theme .tooltip,
+    html.light-theme .node,
+    html.light-theme .n,
+    html.light-theme .bx,
+    html.light-theme .bx-vpc,
+    html.light-theme .bx-az,
+    html.light-theme .btn-back,
+    html.light-theme .theme-toggle-btn,
+    html.light-theme .btn-control,
+    html.light-theme .glass-layer,
+    html.light-theme .topbar {
+      border-width: 2px !important;
+    }
+
     html.light-theme .topbar { background: var(--bg-header) !important; }
     html.light-theme .console-panel { background: var(--bg-panel) !important; }
     html.light-theme .telemetry-grid { background: rgba(110, 96, 92, 0.04) !important; }
@@ -107,16 +130,16 @@
       color: #ffffff !important;
       box-shadow: 0 0 10px rgba(212, 138, 151, 0.3) !important;
     }
-    html.light-theme .node {
+    html.light-theme .n {
       background: rgba(255, 255, 255, 0.8) !important;
       border-color: var(--border-color) !important;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
     }
-    html.light-theme .node:hover {
+    html.light-theme .n:hover {
       background: rgba(212, 138, 151, 0.05) !important;
       border-color: var(--color-secondary) !important;
     }
-    html.light-theme .node.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
+    html.light-theme .n.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
     html.light-theme .layer { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
     html.light-theme .info-panel {
       background: rgba(243, 240, 234, 0.95) !important;

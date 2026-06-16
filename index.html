@@ -47,32 +47,76 @@
     }
 
     /* Light Theme Overrides (Warm Cream & Beige) */
+    /* Light Theme Overrides (Warm Cream & Beige) */
     .light-theme {
+      font-size: 18px !important;            /* Increment all rem values by 2 points */
       --bg-dark: #f2efe9;             /* Soft Warm Sand / Linen Beige */
-      --bg-panel: rgba(243, 240, 234, 0.85); /* Translucent Cream Panel */
-      --bg-card: rgba(235, 231, 223, 0.5);   /* Translucent Beige Card */
-      --border-color: rgba(110, 96, 92, 0.12); /* Soft Charcoal Border */
-      --border-glow: rgba(212, 138, 151, 0.2);
+      --bg-panel: rgba(243, 240, 234, 0.92); /* Higher opacity cream panel */
+      --bg-card: rgba(235, 231, 223, 0.7);   /* Richer Translucent Beige Card */
+      --border-color: rgba(90, 76, 72, 0.35); /* Darker, more defined charcoal border */
+      --border-glow: rgba(212, 138, 151, 0.4);
       
       --color-primary: #000000;       /* Bold Signature Black */
-      --color-secondary: #d48a97;     /* Delicate Unseen Blush Rose */
-      --color-success: #10b981;       
+      --color-secondary: #b66a77;     /* Darker blushing rose for better contrast */
+      --color-success: #059669;       /* Darker green */
       --color-warning: #d97706;       
       --color-error: #dc2626;         
-      --color-text: #1a1a1a;          /* Rich Charcoal Black */
-      --color-text-muted: #6e605c;    /* Warm Earthy Slate */
+      --color-text: #050505;          /* Deep rich black for readability */
+      --color-text-muted: #4e403c;    /* Dark slate brown for readable subtext */
       
-      --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.08);
-      --glow-purple: 0 0 15px rgba(212, 138, 151, 0.15);
-      --glow-red: 0 0 15px rgba(220, 38, 38, 0.1);
+      --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.12);
+      --glow-purple: 0 0 15px rgba(212, 138, 151, 0.22);
+      --glow-red: 0 0 15px rgba(220, 38, 38, 0.15);
 
-      --grid-color: rgba(212, 138, 151, 0.055); /* Delicate rose-gold grid overlay */
-      --glow-color-1: rgba(212, 138, 151, 0.09); /* Warm blush background glow */
-      --glow-color-2: rgba(0, 0, 0, 0.03);
-      --bg-header: rgba(242, 239, 233, 0.85);    /* Matching Translucent Header */
-      --bg-diagram: #eae4da;          /* Warm sand backdrop for architecture diagrams */
-      --color-diagram-text: #1a1a1a;
-      --cursor-ring-color: rgba(212, 138, 151, 0.45);
+      --grid-color: rgba(212, 138, 151, 0.08); 
+      --glow-color-1: rgba(212, 138, 151, 0.12); 
+      --glow-color-2: rgba(0, 0, 0, 0.04);
+      --bg-header: rgba(242, 239, 233, 0.92);    
+      --bg-diagram: #eae4da;          
+      --color-diagram-text: #0a0a0a;
+      --cursor-ring-color: rgba(212, 138, 151, 0.6);
+    }
+
+    /* Make borders thicker in light mode for all core components */
+    .light-theme .shell-container,
+    .light-theme .shell-header,
+    .light-theme .shell-input-row,
+    .light-theme .simulator-card,
+    .light-theme .viz-card,
+    .light-theme .btn-back,
+    .light-theme .theme-toggle-btn,
+    .light-theme .social-btn,
+    .light-theme .project-action-btn,
+    .light-theme .nav-container,
+    .light-theme .nav-logo,
+    .light-theme .gauge-container,
+    .light-theme .control-btn,
+    .light-theme .status-pill {
+      border-width: 2px !important;
+    }
+
+    /* Home Page Terminal Light Mode Styling overrides */
+    .light-theme .shell-container {
+      background: #f5f2eb !important;
+      color: #0369a1 !important; /* Command/Prompt text color (contrast blue) */
+      box-shadow: 0 10px 30px rgba(110, 96, 92, 0.1) !important;
+    }
+    .light-theme .shell-header {
+      background: rgba(110, 96, 92, 0.08) !important;
+    }
+    .light-theme .shell-body {
+      background: #fdfbf7 !important;
+      color: #1a1a1a !important; /* Output default logs should be dark gray */
+    }
+    .light-theme .shell-input-row {
+      background: #f5f2eb !important;
+      color: #0369a1 !important;
+    }
+    .light-theme .shell-input {
+      color: #1a1a1a !important;
+    }
+    .light-theme .shell-prompt-label {
+      color: #0a0a0a !important;
     }
 
     * {
