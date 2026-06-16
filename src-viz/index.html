@@ -85,16 +85,19 @@
   html.light-theme .terminal-header,
   html.light-theme .tooltip,
   html.light-theme .node,
-  html.light-theme .n,
   html.light-theme .bx,
   html.light-theme .bx-vpc,
   html.light-theme .bx-az,
   html.light-theme .btn-back,
   html.light-theme .theme-toggle-btn,
   html.light-theme .btn-control,
-  html.light-theme .glass-layer,
   html.light-theme .topbar {
     border-width: 2px !important;
+  }
+
+  html.light-theme .layer {
+    border-width: 3px !important;
+    border-color: rgba(90, 76, 72, 0.45) !important;
   }
 
   html.light-theme .topbar { background: var(--bg-header) !important; }
@@ -268,12 +271,15 @@
     align-items: center;
     justify-content: space-between;
     z-index: 100;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .topbar-left {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .btn-back {
@@ -973,6 +979,21 @@
 <div style="margin-top:.5rem;font-size:.7rem;color:var(--muted)" id="flowDesc"></div>
 </div>
 <script>
+// --- Theme Switcher Logic ---
+(function() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light-theme');
+      if (document.documentElement.classList.contains('light-theme')) {
+        localStorage.setItem('portfolio-theme', 'light');
+      } else {
+        localStorage.setItem('portfolio-theme', 'dark');
+      }
+    });
+  }
+})();
+
 const microservices=['account','authorization','bill','bin','block-code','bre','campaign','capri','card','chronos','cds','cohort','colending','collection','credential','dispute','dpd','event','forex','frm','gift-card','installment','interest','inventory','lead','ledger','los','notification','onboarding','open-credit','pg','pin','postpe','program','recon','reporting','reward','rule','solfin','support','transaction','txnPostProcessing','underwriting','utility','wallet','webhook'];
 const msGrid=document.getElementById('msGrid');
 const eksServices=document.getElementById('eksServices');
@@ -1060,18 +1081,6 @@ node.addEventListener('mouseleave',()=>{const t=document.getElementById('tooltip
 node.addEventListener('mousemove',e=>{const t=document.getElementById('tooltip');if(t){t.style.left=e.pageX+10+'px';t.style.top=(e.pageY-40)+'px';}});
 });
 
-// --- Theme Switcher Logic ---
-const themeToggleBtn = document.getElementById('theme-toggle');
-if (themeToggleBtn) {
-  themeToggleBtn.addEventListener('click', () => {
-    document.documentElement.classList.toggle('light-theme');
-    if (document.documentElement.classList.contains('light-theme')) {
-      localStorage.setItem('portfolio-theme', 'light');
-    } else {
-      localStorage.setItem('portfolio-theme', 'dark');
-    }
-  });
-}
 </script>
 </body>
 </html>

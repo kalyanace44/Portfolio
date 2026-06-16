@@ -50,7 +50,6 @@
       transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
     }
     html.light-theme {
-      font-size: 18px !important;            /* Increment rem font sizing by 2 points */
       --bg-dark: #f2efe9;
       --bg-panel: rgba(243, 240, 234, 0.92);
       --bg-card: rgba(235, 231, 223, 0.7);
@@ -84,17 +83,28 @@
     html.light-theme .terminal-container,
     html.light-theme .terminal-header,
     html.light-theme .tooltip,
-    html.light-theme .node,
-    html.light-theme .n,
-    html.light-theme .bx,
-    html.light-theme .bx-vpc,
-    html.light-theme .bx-az,
     html.light-theme .btn-back,
     html.light-theme .theme-toggle-btn,
     html.light-theme .btn-control,
-    html.light-theme .glass-layer,
     html.light-theme .topbar {
       border-width: 2px !important;
+    }
+
+    /* Thicker borders for regional layers in light mode */
+    html.light-theme .region-box {
+      border-width: 3px !important;
+      border-color: rgba(90, 76, 72, 0.45) !important;
+    }
+
+    /* Bolder text for visibility in light mode */
+    html.light-theme .region-title,
+    html.light-theme .label-box,
+    html.light-theme .terminal-body,
+    html.light-theme .terminal-input,
+    html.light-theme .tooltip,
+    html.light-theme .info-panel,
+    html.light-theme .layer-label {
+      font-weight: 600;
     }
 
     html.light-theme .topbar { background: var(--bg-header) !important; }
@@ -130,16 +140,17 @@
       color: #ffffff !important;
       box-shadow: 0 0 10px rgba(212, 138, 151, 0.3) !important;
     }
-    html.light-theme .n {
+    html.light-theme .icon-box {
       background: rgba(255, 255, 255, 0.8) !important;
       border-color: var(--border-color) !important;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+      border-width: 2px !important;
     }
-    html.light-theme .n:hover {
+    html.light-theme .n:hover .icon-box {
       background: rgba(212, 138, 151, 0.05) !important;
       border-color: var(--color-secondary) !important;
     }
-    html.light-theme .n.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
+    html.light-theme .icon-box.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
     html.light-theme .layer { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
     html.light-theme .info-panel {
       background: rgba(243, 240, 234, 0.95) !important;
@@ -268,12 +279,15 @@
       align-items: center;
       justify-content: space-between;
       z-index: 100;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .topbar-left {
       display: flex;
       align-items: center;
       gap: 1.5rem;
+      flex-wrap: wrap;
     }
 
     .btn-back {
@@ -1228,6 +1242,21 @@
 
   <!-- Simulation Control Script -->
   <script>
+    // --- Theme Switcher Logic ---
+    (function() {
+      const themeToggleBtn = document.getElementById('theme-toggle');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          document.documentElement.classList.toggle('light-theme');
+          if (document.documentElement.classList.contains('light-theme')) {
+            localStorage.setItem('portfolio-theme', 'light');
+          } else {
+            localStorage.setItem('portfolio-theme', 'dark');
+          }
+        });
+      }
+    })();
+
     // System Configurations
     const FAILOVER_RUNBOOK = [
       { id: 'trigger_alert', code: 'trigger', label: 'Disaster Outage Detected', desc: 'AWS ap-south-1 suffers catastrophic infrastructure failure. All nodes unreachable.', terminal_prompt: 'Run the recovery pipeline to proceed: ./dr_failover.py --direction mum-to-hyd' },
@@ -2106,18 +2135,6 @@
       run();
     }
 
-    // --- Theme Switcher Logic ---
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener('click', () => {
-        document.documentElement.classList.toggle('light-theme');
-        if (document.documentElement.classList.contains('light-theme')) {
-          localStorage.setItem('portfolio-theme', 'light');
-        } else {
-          localStorage.setItem('portfolio-theme', 'dark');
-        }
-      });
-    }
   </script>
 </body>
 </html>

@@ -60,7 +60,6 @@
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
   }
   html.light-theme {
-    font-size: 18px !important;            /* Increment rem font sizing by 2 points */
     --bg-dark: #f2efe9;
     --bg-panel: rgba(243, 240, 234, 0.92);
     --bg-card: rgba(235, 231, 223, 0.7);
@@ -94,17 +93,26 @@
   html.light-theme .terminal-container,
   html.light-theme .terminal-header,
   html.light-theme .tooltip,
-  html.light-theme .node,
-  html.light-theme .n,
-  html.light-theme .bx,
-  html.light-theme .bx-vpc,
-  html.light-theme .bx-az,
   html.light-theme .btn-back,
   html.light-theme .theme-toggle-btn,
   html.light-theme .btn-control,
-  html.light-theme .glass-layer,
   html.light-theme .topbar {
     border-width: 2px !important;
+  }
+
+  /* Thicker borders for absolute layers in light mode */
+  html.light-theme .glass-layer {
+    border-width: 3px !important;
+    border-color: rgba(90, 76, 72, 0.45) !important;
+  }
+
+  /* Bolder text for visibility in light mode */
+  html.light-theme .n-label,
+  html.light-theme .layer-label,
+  html.light-theme .tooltip,
+  html.light-theme .info-panel,
+  html.light-theme .detail-panel {
+    font-weight: 600;
   }
 
   html.light-theme .topbar { background: var(--bg-header) !important; }
@@ -112,12 +120,13 @@
   html.light-theme .diagram-panel { background: var(--bg-diagram) !important; }
   html.light-theme .glass-layer:hover { background: rgba(255, 255, 255, 0.6) !important; }
   html.light-theme .conn-line { stroke: rgba(110, 96, 92, 0.18) !important; }
-  html.light-theme .n {
+  html.light-theme .n-icon {
     background: rgba(255, 255, 255, 0.8) !important;
     border-color: var(--border-color) !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+    border-width: 2px !important;
   }
-  html.light-theme .n:hover {
+  html.light-theme .n:hover .n-icon {
     background: rgba(212, 138, 151, 0.05) !important;
     border-color: var(--color-secondary) !important;
   }
@@ -257,12 +266,15 @@
     align-items: center;
     justify-content: space-between;
     z-index: 100;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .topbar-left {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .btn-back {
@@ -844,7 +856,7 @@
 </div>
 
 <!-- ===== EKS CLUSTER ===== -->
-<div class="glass-layer" style="top:370px;left:70px;width:820px;height:210px;border-color:rgba(249,115,22,0.15)">
+<div class="glass-layer" style="top:370px;left:70px;width:820px;height:225px;border-color:rgba(249,115,22,0.15)">
 <div class="layer-label"><div class="dot" style="background:#f97316"></div>EKS Cluster: prod-yesbank-eks-v1 (v1.33) — Service CIDR: 172.20.0.0/16</div>
 </div>
 <div class="n" id="cp" style="top:400px;left:130px" data-name="Control Plane" data-type="EKS" data-detail="AWS-managed control plane. K8s v1.33. Private+Public endpoint. All logging enabled (api, audit, authenticator, controllerManager, scheduler).">
@@ -870,7 +882,7 @@
 </div>
 
 <!-- ===== DATA LAYER ===== -->
-<div class="glass-layer" style="top:600px;left:70px;width:820px;height:110px;border-color:rgba(16,185,129,0.15)">
+<div class="glass-layer" style="top:600px;left:70px;width:820px;height:125px;border-color:rgba(16,185,129,0.15)">
 <div class="layer-label"><div class="dot" style="background:var(--glow-green)"></div>Data Layer — Private DB Subnets (10.143.3-5.0/24)</div>
 </div>
 <div class="n" id="rds" style="top:630px;left:130px" data-name="RDS PostgreSQL" data-type="Database" data-detail="prod-ybl-rds: PostgreSQL 14.17, db.m7g.2xlarge, Multi-AZ (1a+1b), 50GB gp3, 3000 IOPS, encrypted (KMS). IAM Auth enabled. Read Replica + cross-region replica (ap-south-2).">
@@ -890,7 +902,7 @@
 </div>
 
 <!-- ===== VPN LAYER ===== -->
-<div class="glass-layer" style="top:730px;left:70px;width:820px;height:100px;border-color:rgba(139,92,246,0.15)">
+<div class="glass-layer" style="top:730px;left:70px;width:820px;height:110px;border-color:rgba(139,92,246,0.15)">
 <div class="layer-label"><div class="dot" style="background:var(--glow-purple)"></div>Site-to-Site VPN — Bank DC ↔ AWS</div>
 </div>
 <div class="n" id="vgw" style="top:755px;left:160px" data-name="Virtual Private GW" data-type="Networking" data-detail="vgw-0f422c60a49d3fe2c — VPN termination point within VPC. Routes: 10.11.48.0/24, 172.28.24.212/32, 10.176.8.128/25, 10.177.160.64/27, 10.246.160.64/27.">
@@ -933,6 +945,21 @@
 <div class="flow-progress"><div class="flow-progress-bar" id="progressBar"></div></div>
 
 <script>
+// --- Theme Switcher Logic ---
+(function() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light-theme');
+      if (document.documentElement.classList.contains('light-theme')) {
+        localStorage.setItem('portfolio-theme', 'light');
+      } else {
+        localStorage.setItem('portfolio-theme', 'dark');
+      }
+    });
+  }
+})();
+
 // Flow definitions with rich hop metadata
 const flows={
   api:{
@@ -1150,19 +1177,6 @@ function drawLines(){
 }
 setTimeout(drawLines,300);
 window.addEventListener('resize',()=>setTimeout(drawLines,100));
-
-// --- Theme Switcher Logic ---
-const themeToggleBtn = document.getElementById('theme-toggle');
-if (themeToggleBtn) {
-  themeToggleBtn.addEventListener('click', () => {
-    document.documentElement.classList.toggle('light-theme');
-    if (document.documentElement.classList.contains('light-theme')) {
-      localStorage.setItem('portfolio-theme', 'light');
-    } else {
-      localStorage.setItem('portfolio-theme', 'dark');
-    }
-  });
-}
 </script>
 </body>
 </html>

@@ -343,7 +343,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     </button>
   </header>
 
-  <div id="auth-container">
+  <div id="auth-container" style="display: none;">
     <div style="
       width: 64px;
       height: 64px;
@@ -411,43 +411,62 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     const form = document.getElementById('auth-form');
     const errorEl = document.getElementById('auth-error');
 
-    input.focus();
-    input.addEventListener('focus', () => input.classList.add('auth-input-focus'));
-    input.addEventListener('blur', () => input.classList.remove('auth-input-focus'));
-
     // Encrypted content data (Base64 payload compatible with CryptoJS)
     const ciphertext = "${encryptedPayload}";
 
     // SHA-256 hash of the password "aws-traffic-2026"
     const CORRECT_HASH = 'f2e15f71628034ebfe8c173d060d205ca5f92b3367592a301caccc7aca6e19e6';
 
-    // Cookie management helpers for session authentication
-    function setSessionCookie(name, value) {
+    // Session validation helpers
+    function setSessionActive() {
       try {
-        // Set cookie without expires attribute to make it a session cookie.
-        // On local file:// protocol, setting cookies may fail, so sessionStorage is used as fallback.
-        document.cookie = name + "=" + encodeURIComponent(value) + "; path=/; SameSite=Strict";
-      } catch (e) {
-        console.warn("Failed to set session cookie:", e);
-      }
+        sessionStorage.setItem('portfolio_session_active', 'true');
+      } catch (e) {}
+      try {
+        // Set cookie without expires attribute (session cookie)
+        document.cookie = "portfolio_session_active=true; path=/; SameSite=Strict";
+      } catch (e) {}
+      try {
+        localStorage.setItem('portfolio_last_active', Date.now().toString());
+      } catch (e) {}
     }
 
-    // Get cookie utility
-    function getCookie(name) {
+    function isSessionActive() {
+      let active = false;
+      try {
+        if (sessionStorage.getItem('portfolio_session_active') === 'true') {
+          active = true;
+        }
+      } catch (e) {}
+      
       try {
         const value = "; " + document.cookie;
-        const parts = value.split("; " + name + "=");
-        if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
-      } catch (e) {
-        console.warn("Failed to get session cookie:", e);
+        if (value.indexOf("; portfolio_session_active=true") !== -1) {
+          active = true;
+        }
+      } catch (e) {}
+      
+      if (window.location.protocol === 'file:') {
+        try {
+          const lastActive = localStorage.getItem('portfolio_last_active');
+          if (lastActive && (Date.now() - parseInt(lastActive)) < 30 * 60 * 1000) {
+            active = true;
+          }
+        } catch (e) {}
       }
-      return null;
+      
+      return active;
     }
 
-    // Erase cookie utility
-    function eraseCookie(name) {
+    function clearSession() {
       try {
-        document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+        sessionStorage.removeItem('portfolio_session_active');
+      } catch (e) {}
+      try {
+        document.cookie = "portfolio_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+      } catch (e) {}
+      try {
+        localStorage.removeItem('portfolio_last_active');
       } catch (e) {}
     }
 
@@ -458,24 +477,14 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
         const decryptedHtml = decrypted.toString(CryptoJS.enc.Utf8);
         
         if (decryptedHtml.startsWith('<!DOCTYPE html>') || decryptedHtml.includes('html') || decryptedHtml.length > 500) {
-          // Success! Save auth parameters to Session Cookie and sessionStorage for tab/session sync
-          setSessionCookie('portfolio_auth_key', passwordVal);
+          // Success! Save auth parameters to localStorage so they are shared across subpages
           try {
-            sessionStorage.setItem('portfolio_auth_key', passwordVal);
+            localStorage.setItem('portfolio_auth_key', passwordVal);
+            localStorage.setItem('portfolio_auth_token', CORRECT_HASH);
           } catch (e) {}
-
-          // For local testing on file:// protocol (which isolates sessionStorage per file path),
-          // fallback to localStorage so the credentials remain universal without prompting again.
-          // On HTTP/HTTPS production, we keep it session-only by removing localStorage credentials.
-          try {
-            if (window.location.protocol === 'file:') {
-              localStorage.setItem('portfolio_auth_key', passwordVal);
-              localStorage.setItem('portfolio_auth_token', CORRECT_HASH);
-            } else {
-              localStorage.removeItem('portfolio_auth_key');
-              localStorage.removeItem('portfolio_auth_token');
-            }
-          } catch (e) {}
+          
+          // Mark session active
+          setSessionActive();
           
           // Re-write document stream with decrypted markup
           document.open();
@@ -489,21 +498,49 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       return false;
     }
 
-    // Auto-decrypt if valid session credentials exist
-    const savedKey = getCookie('portfolio_auth_key') || 
-                     sessionStorage.getItem('portfolio_auth_key') || 
-                     (window.location.protocol === 'file:' ? localStorage.getItem('portfolio_auth_key') : null);
-    if (savedKey) {
-      const success = decryptAndRender(savedKey);
-      if (!success) {
-        eraseCookie('portfolio_auth_key');
+    // Defer the auto-decrypt check slightly to ensure the document parsing finishes,
+    // which prevents the browser from preserving wrapper elements in the replaced DOM.
+    setTimeout(() => {
+      // Check if this is a valid active session.
+      // If the browser was closed/restarted or opened in a fresh session, we reset auth state.
+      const sessionActive = isSessionActive();
+      if (!sessionActive) {
         try {
-          sessionStorage.removeItem('portfolio_auth_key');
           localStorage.removeItem('portfolio_auth_key');
           localStorage.removeItem('portfolio_auth_token');
         } catch (e) {}
       }
-    }
+
+      // Check if we have a saved key (persisted in localStorage for cross-subpage ease)
+      let savedKey = null;
+      try {
+        savedKey = localStorage.getItem('portfolio_auth_key');
+      } catch (e) {}
+
+      let autoDecrypted = false;
+      if (savedKey) {
+        autoDecrypted = decryptAndRender(savedKey);
+        if (autoDecrypted) {
+          // Verify session remains marked active
+          setSessionActive();
+        } else {
+          // Cleanup on decryption failure
+          clearSession();
+          try {
+            localStorage.removeItem('portfolio_auth_key');
+            localStorage.removeItem('portfolio_auth_token');
+          } catch (e) {}
+        }
+      }
+
+      // If we couldn't auto-decrypt, show the security gateway screen
+      if (!autoDecrypted) {
+        container.style.display = 'block';
+        input.focus();
+        input.addEventListener('focus', () => input.classList.add('auth-input-focus'));
+        input.addEventListener('blur', () => input.classList.remove('auth-input-focus'));
+      }
+    }, 0);
 
     // Submit listener
     form.addEventListener('submit', (e) => {
