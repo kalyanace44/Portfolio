@@ -21,7 +21,7 @@
   body, header, footer, main, section, div, span, p, h1, h2, h3, h4, input, button, select, a, svg, canvas {
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
   }
-  .light-theme {
+  html.light-theme {
     --bg-dark: #f2efe9;
     --bg-panel: rgba(243, 240, 234, 0.85);
     --bg-card: rgba(235, 231, 223, 0.6);
@@ -46,62 +46,62 @@
     --color-diagram-text: #1a1a1a;
     --cursor-ring-color: rgba(212, 138, 151, 0.45);
   }
-  .light-theme .topbar { background: var(--bg-header) !important; }
-  .light-theme .console-panel { background: var(--bg-panel) !important; }
-  .light-theme .telemetry-grid { background: rgba(110, 96, 92, 0.04) !important; }
-  .light-theme .diagram-panel { background: var(--bg-diagram) !important; }
-  .light-theme .canvas-container {
+  html.light-theme .topbar { background: var(--bg-header) !important; }
+  html.light-theme .console-panel { background: var(--bg-panel) !important; }
+  html.light-theme .telemetry-grid { background: rgba(110, 96, 92, 0.04) !important; }
+  html.light-theme .diagram-panel { background: var(--bg-diagram) !important; }
+  html.light-theme .canvas-container {
     background: rgba(255, 255, 255, 0.4) !important;
     border-color: var(--border-color) !important;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02) !important;
   }
-  .light-theme .region-box {
+  html.light-theme .region-box {
     background: rgba(255, 255, 255, 0.5) !important;
     border-color: rgba(110, 96, 92, 0.15) !important;
     box-shadow: none !important;
   }
-  .light-theme .terminal-container {
+  html.light-theme .terminal-container {
     background: #faf8f5 !important;
     border-color: var(--border-color) !important;
     box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03) !important;
   }
-  .light-theme .terminal-header {
+  html.light-theme .terminal-header {
     background: rgba(110, 96, 92, 0.06) !important;
     border-bottom: 1px solid var(--border-color) !important;
   }
-  .light-theme .terminal-body { color: #334155 !important; }
-  .light-theme .terminal-input { color: #1e293b !important; }
-  .light-theme .btn-back { background: rgba(0, 0, 0, 0.03) !important; }
-  .light-theme .mode-select { background: rgba(110, 96, 92, 0.08) !important; }
-  .light-theme .btn-mode:not(.active) { color: var(--color-text-muted) !important; }
-  .light-theme .btn-mode.active {
+  html.light-theme .terminal-body { color: #334155 !important; }
+  html.light-theme .terminal-input { color: #1e293b !important; }
+  html.light-theme .btn-back { background: rgba(0, 0, 0, 0.03) !important; }
+  html.light-theme .mode-select { background: rgba(110, 96, 92, 0.08) !important; }
+  html.light-theme .btn-mode:not(.active) { color: var(--color-text-muted) !important; }
+  html.light-theme .btn-mode.active {
     background: var(--color-secondary) !important;
     color: #ffffff !important;
     box-shadow: 0 0 10px rgba(212, 138, 151, 0.3) !important;
   }
-  .light-theme .node {
+  html.light-theme .node {
     background: rgba(255, 255, 255, 0.8) !important;
     border-color: var(--border-color) !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
   }
-  .light-theme .node:hover {
+  html.light-theme .node:hover {
     background: rgba(212, 138, 151, 0.05) !important;
     border-color: var(--color-secondary) !important;
   }
-  .light-theme .node.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
-  .light-theme .layer { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
-  .light-theme .info-panel {
+  html.light-theme .node.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
+  html.light-theme .layer { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
+  html.light-theme .info-panel {
     background: rgba(243, 240, 234, 0.95) !important;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05) !important;
   }
-  .light-theme .tooltip {
+  html.light-theme .tooltip {
     background: rgba(243, 240, 234, 0.98) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
     color: var(--color-text) !important;
   }
-  .light-theme svg line,
-  .light-theme .conn-line,
-  .light-theme .path-inactive {
+  html.light-theme svg line,
+  html.light-theme .conn-line,
+  html.light-theme .path-inactive {
     stroke: rgba(110, 96, 92, 0.18) !important;
   }
 
@@ -131,7 +131,7 @@
     background: rgba(0, 245, 255, 0.05);
     transform: translateY(-2px) rotate(15deg);
   }
-  .light-theme .theme-toggle-btn:hover {
+  html.light-theme .theme-toggle-btn:hover {
     background: rgba(212, 138, 151, 0.1);
     border-color: var(--color-secondary);
     color: var(--color-secondary);
@@ -148,8 +148,8 @@
   }
   .theme-toggle-btn .sun-icon { display: block; }
   .theme-toggle-btn .moon-icon { display: none; }
-  .light-theme .theme-toggle-btn .sun-icon { display: none; }
-  .light-theme .theme-toggle-btn .moon-icon { display: block; }
+  html.light-theme .theme-toggle-btn .sun-icon { display: none; }
+  html.light-theme .theme-toggle-btn .moon-icon { display: block; }
 
   /* Premium Cyber-Obsidian Design Tokens */
   :root {

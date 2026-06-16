@@ -81,7 +81,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       --glow-purple: 0 0 20px rgba(157, 78, 221, 0.2);
     }
 
-    .light-theme {
+    html.light-theme {
       --bg-dark: #f2efe9;
       --bg-panel: rgba(243, 240, 234, 0.85);
       --border-color: rgba(110, 96, 92, 0.12);
@@ -123,7 +123,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       z-index: -2;
       pointer-events: none;
     }
-    .light-theme::before {
+    html.light-theme::before {
       background-image: 
         linear-gradient(to right, rgba(212, 138, 151, 0.04) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(212, 138, 151, 0.04) 1px, transparent 1px);
@@ -140,7 +140,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       z-index: -1;
       pointer-events: none;
     }
-    .light-theme .glow-bg-1 {
+    html.light-theme .glow-bg-1 {
       background: radial-gradient(circle, rgba(212, 138, 151, 0.09) 0%, transparent 70%);
     }
 
@@ -159,7 +159,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       backdrop-filter: blur(10px);
       z-index: 100;
     }
-    .light-theme .topbar {
+    html.light-theme .topbar {
       background: rgba(242, 239, 233, 0.4);
     }
 
@@ -183,7 +183,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       background: rgba(0, 245, 255, 0.05);
       transform: translateX(-3px);
     }
-    .light-theme .btn-back:hover {
+    html.light-theme .btn-back:hover {
       background: rgba(212, 138, 151, 0.05);
       border-color: var(--color-secondary);
       color: var(--color-secondary);
@@ -209,7 +209,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       background: rgba(0, 245, 255, 0.05);
       transform: translateY(-2px) rotate(15deg);
     }
-    .light-theme .theme-toggle-btn:hover {
+    html.light-theme .theme-toggle-btn:hover {
       background: rgba(212, 138, 151, 0.1);
       border-color: var(--color-secondary);
       color: var(--color-secondary);
@@ -221,8 +221,8 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
     }
     .theme-toggle-btn .sun-icon { display: block; }
     .theme-toggle-btn .moon-icon { display: none; }
-    .light-theme .theme-toggle-btn .sun-icon { display: none; }
-    .light-theme .theme-toggle-btn .moon-icon { display: block; }
+    html.light-theme .theme-toggle-btn .sun-icon { display: none; }
+    html.light-theme .theme-toggle-btn .moon-icon { display: block; }
 
     /* Login Card container */
     #auth-container {
@@ -241,7 +241,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       position: relative;
       animation: auth-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .light-theme #auth-container {
+    html.light-theme #auth-container {
       background: rgba(243, 240, 234, 0.85);
       border-color: rgba(110, 96, 92, 0.2);
       box-shadow: 0 10px 40px rgba(110, 96, 92, 0.1);
@@ -276,7 +276,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .light-theme #auth-container h2 {
+    html.light-theme #auth-container h2 {
       background: linear-gradient(135deg, #1a1a1a 0%, #6e605c 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -295,7 +295,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
     }
-    .light-theme #auth-password {
+    html.light-theme #auth-password {
       background: rgba(255, 255, 255, 0.9);
       border-color: rgba(110, 96, 92, 0.2);
       color: #1a1a1a;
@@ -318,7 +318,7 @@ function generateWrapperHTML(pageTitle, encryptedPayload) {
       margin-top: 0.5rem;
       width: 100%;
     }
-    .light-theme #auth-form button {
+    html.light-theme #auth-form button {
       background: linear-gradient(135deg, #1a1a1a 0%, #d48a97 100%);
       color: #f2efe9;
       box-shadow: 0 4px 15px rgba(212, 138, 151, 0.2);

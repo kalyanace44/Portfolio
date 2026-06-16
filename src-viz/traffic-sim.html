@@ -21,7 +21,7 @@
   body, header, footer, main, section, div, span, p, h1, h2, h3, h4, input, button, select, a, svg, canvas {
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
   }
-  .light-theme {
+  html.light-theme {
     --bg-dark: #f2efe9;
     --bg-panel: rgba(243, 240, 234, 0.85);
     --bg-card: rgba(235, 231, 223, 0.6);
@@ -46,31 +46,31 @@
     --color-diagram-text: #1a1a1a;
     --cursor-ring-color: rgba(212, 138, 151, 0.45);
   }
-  .light-theme .topbar { background: var(--bg-header) !important; }
-  .light-theme .btn-back { background: rgba(0, 0, 0, 0.03) !important; }
-  .light-theme .diagram-panel { background: var(--bg-diagram) !important; }
-  .light-theme .info {
+  html.light-theme .topbar { background: var(--bg-header) !important; }
+  html.light-theme .btn-back { background: rgba(0, 0, 0, 0.03) !important; }
+  html.light-theme .diagram-panel { background: var(--bg-diagram) !important; }
+  html.light-theme .info {
     background: rgba(243, 240, 234, 0.95) !important;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05) !important;
   }
-  .light-theme svg line { stroke: rgba(110, 96, 92, 0.18) !important; }
-  .light-theme .bx { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
-  .light-theme .bx-cloud {
+  html.light-theme svg line { stroke: rgba(110, 96, 92, 0.18) !important; }
+  html.light-theme .bx { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
+  html.light-theme .bx-cloud {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(212, 138, 151, 0.05) 100%) !important;
   }
-  .light-theme .bx-vpc {
+  html.light-theme .bx-vpc {
     background: linear-gradient(180deg, rgba(212, 138, 151, 0.1) 0%, transparent 100%) !important;
   }
-  .light-theme .bx-az { border-color: rgba(110, 96, 92, 0.1) !important; }
-  .light-theme .bx-sub-pub { background: rgba(16, 185, 129, 0.04) !important; }
-  .light-theme .bx-sub-priv { background: rgba(212, 138, 151, 0.03) !important; }
-  .light-theme .bx-sg { background: rgba(212, 138, 151, 0.04) !important; }
-  .light-theme .n:hover .ico { background: rgba(2, 132, 199, 0.05) !important; }
-  .light-theme .n.on .ico { background: rgba(16, 185, 129, 0.08) !important; }
-  .light-theme .glow-bg-1 {
+  html.light-theme .bx-az { border-color: rgba(110, 96, 92, 0.1) !important; }
+  html.light-theme .bx-sub-pub { background: rgba(16, 185, 129, 0.04) !important; }
+  html.light-theme .bx-sub-priv { background: rgba(212, 138, 151, 0.03) !important; }
+  html.light-theme .bx-sg { background: rgba(212, 138, 151, 0.04) !important; }
+  html.light-theme .n:hover .ico { background: rgba(2, 132, 199, 0.05) !important; }
+  html.light-theme .n.on .ico { background: rgba(16, 185, 129, 0.08) !important; }
+  html.light-theme .glow-bg-1 {
     background: radial-gradient(circle, rgba(212, 138, 151, 0.09) 0%, transparent 70%) !important;
   }
-  .light-theme .glow-bg-2 {
+  html.light-theme .glow-bg-2 {
     background: radial-gradient(circle, rgba(0, 0, 0, 0.03) 0%, transparent 70%) !important;
   }
 
@@ -100,7 +100,7 @@
     background: rgba(0, 245, 255, 0.05);
     transform: translateY(-2px) rotate(15deg);
   }
-  .light-theme .theme-toggle-btn:hover {
+  html.light-theme .theme-toggle-btn:hover {
     background: rgba(212, 138, 151, 0.1);
     border-color: var(--color-secondary);
     color: var(--color-secondary);
@@ -117,8 +117,8 @@
   }
   .theme-toggle-btn .sun-icon { display: block; }
   .theme-toggle-btn .moon-icon { display: none; }
-  .light-theme .theme-toggle-btn .sun-icon { display: none; }
-  .light-theme .theme-toggle-btn .moon-icon { display: block; }
+  html.light-theme .theme-toggle-btn .sun-icon { display: none; }
+  html.light-theme .theme-toggle-btn .moon-icon { display: block; }
 
   /* Premium Cyber-Obsidian Design Tokens */
   :root {
