@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('portfolio-theme');
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light-theme');
+    }
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VegaPay x YesBank - Production Architecture Topology</title>
@@ -10,6 +18,139 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
+  body, header, footer, main, section, div, span, p, h1, h2, h3, h4, input, button, select, a, svg, canvas {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, transform 0.3s ease;
+  }
+  .light-theme {
+    --bg-dark: #f2efe9;
+    --bg-panel: rgba(243, 240, 234, 0.85);
+    --bg-card: rgba(235, 231, 223, 0.6);
+    --border-color: rgba(110, 96, 92, 0.12);
+    --border-glow: rgba(212, 138, 151, 0.25);
+    --color-primary: #000000;
+    --color-secondary: #d48a97;
+    --color-success: #10b981;
+    --color-warning: #d97706;
+    --color-error: #dc2626;
+    --color-text: #1a1a1a;
+    --color-text-muted: #6e605c;
+    --glow-cyan: 0 0 15px rgba(0, 0, 0, 0.08);
+    --glow-purple: 0 0 15px rgba(212, 138, 151, 0.15);
+    --glow-red: 0 0 15px rgba(220, 38, 38, 0.1);
+    --glow-green: 0 0 15px rgba(16, 185, 129, 0.1);
+    --grid-color: rgba(212, 138, 151, 0.055);
+    --glow-color-1: rgba(212, 138, 151, 0.09);
+    --glow-color-2: rgba(0, 0, 0, 0.03);
+    --bg-header: rgba(242, 239, 233, 0.85);
+    --bg-diagram: #eae4da;
+    --color-diagram-text: #1a1a1a;
+    --cursor-ring-color: rgba(212, 138, 151, 0.45);
+  }
+  .light-theme .topbar { background: var(--bg-header) !important; }
+  .light-theme .console-panel { background: var(--bg-panel) !important; }
+  .light-theme .telemetry-grid { background: rgba(110, 96, 92, 0.04) !important; }
+  .light-theme .diagram-panel { background: var(--bg-diagram) !important; }
+  .light-theme .canvas-container {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02) !important;
+  }
+  .light-theme .region-box {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(110, 96, 92, 0.15) !important;
+    box-shadow: none !important;
+  }
+  .light-theme .terminal-container {
+    background: #faf8f5 !important;
+    border-color: var(--border-color) !important;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03) !important;
+  }
+  .light-theme .terminal-header {
+    background: rgba(110, 96, 92, 0.06) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+  }
+  .light-theme .terminal-body { color: #334155 !important; }
+  .light-theme .terminal-input { color: #1e293b !important; }
+  .light-theme .btn-back { background: rgba(0, 0, 0, 0.03) !important; }
+  .light-theme .mode-select { background: rgba(110, 96, 92, 0.08) !important; }
+  .light-theme .btn-mode:not(.active) { color: var(--color-text-muted) !important; }
+  .light-theme .btn-mode.active {
+    background: var(--color-secondary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(212, 138, 151, 0.3) !important;
+  }
+  .light-theme .node {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+  }
+  .light-theme .node:hover {
+    background: rgba(212, 138, 151, 0.05) !important;
+    border-color: var(--color-secondary) !important;
+  }
+  .light-theme .node.active-flow { background: rgba(16, 185, 129, 0.08) !important; }
+  .light-theme .layer { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03) !important; }
+  .light-theme .info-panel {
+    background: rgba(243, 240, 234, 0.95) !important;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05) !important;
+  }
+  .light-theme .tooltip {
+    background: rgba(243, 240, 234, 0.98) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    color: var(--color-text) !important;
+  }
+  .light-theme svg line,
+  .light-theme .conn-line,
+  .light-theme .path-inactive {
+    stroke: rgba(110, 96, 92, 0.18) !important;
+  }
+
+  /* Theme Toggle Button Style */
+  .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 0.5rem;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .theme-toggle-btn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: var(--glow-cyan);
+    background: rgba(0, 245, 255, 0.05);
+    transform: translateY(-2px) rotate(15deg);
+  }
+  .light-theme .theme-toggle-btn:hover {
+    background: rgba(212, 138, 151, 0.1);
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+    box-shadow: var(--glow-purple);
+  }
+  .theme-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .theme-toggle-btn:active svg {
+    transform: scale(0.8);
+  }
+  .theme-toggle-btn .sun-icon { display: block; }
+  .theme-toggle-btn .moon-icon { display: none; }
+  .light-theme .theme-toggle-btn .sun-icon { display: none; }
+  .light-theme .theme-toggle-btn .moon-icon { display: block; }
+
   /* Premium Cyber-Obsidian Design Tokens */
   :root {
     --bg-dark: #05070f;
@@ -647,6 +788,10 @@
       </div>
     </div>
     <div class="topbar-controls">
+      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light/dark theme" style="margin-right: 1rem;">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+      </button>
       <select id="flowSelect">
         <option value="">Select Traffic Flow…</option>
         <option value="api">API Request (Bank → Microservice)</option>
@@ -888,6 +1033,19 @@ tip.id='tooltip';document.body.appendChild(tip);
 node.addEventListener('mouseleave',()=>{const t=document.getElementById('tooltip');if(t)t.remove();});
 node.addEventListener('mousemove',e=>{const t=document.getElementById('tooltip');if(t){t.style.left=e.pageX+10+'px';t.style.top=(e.pageY-40)+'px';}});
 });
+
+// --- Theme Switcher Logic ---
+const themeToggleBtn = document.getElementById('theme-toggle');
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    document.documentElement.classList.toggle('light-theme');
+    if (document.documentElement.classList.contains('light-theme')) {
+      localStorage.setItem('portfolio-theme', 'light');
+    } else {
+      localStorage.setItem('portfolio-theme', 'dark');
+    }
+  });
+}
 </script>
 </body>
 </html>
