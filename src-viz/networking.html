@@ -693,6 +693,18 @@
     box-shadow: 0 6px 25px rgba(182, 106, 119, 0.3);
   }
 
+  /* Dual Diagram mode triggers */
+  #dia.view-simple .lbl-tech { display: none !important; }
+  #dia.view-simple .lbl-simple { display: inline !important; }
+  #dia.view-tech .lbl-simple { display: none !important; }
+  #dia.view-tech .lbl-tech { display: inline !important; }
+  
+  /* Node hiding in Simple mode */
+  #dia.view-simple #db-mumbai,
+  #dia.view-simple #db-hyd {
+    display: none !important;
+  }
+
   /* Responsive layout adjustments */
   @media (max-width: 1100px) {
     .workspace {
@@ -735,110 +747,170 @@
     
     <!-- Diagram Panel -->
     <div class="diagram-panel">
-      <div class="diagram-viewport" id="dia">
+      <div class="diagram-viewport view-simple" id="dia">
         
         <!-- SVG Overlays for static connections -->
         <svg class="overlay" id="svg"></svg>
 
         <!-- MUMBAI PRIMARY REGION (ACTIVE) -->
         <div class="bx bx-vpc" id="vpc-mumbai" style="top:20px;left:20px;width:320px;height:480px">
-          <div class="bx-t" style="color:var(--color-primary)">VPC Mumbai (ap-south-1) • 10.143.0.0/16</div>
+          <div class="bx-t" style="color:var(--color-primary)">
+            <span class="lbl-simple">☁️ Mumbai Core Stack (Active)</span>
+            <span class="lbl-tech">VPC Mumbai (ap-south-1) • 10.143.0.0/16</span>
+          </div>
         </div>
 
         <div class="bx bx-sub-priv" style="top:60px;left:40px;width:280px;height:170px">
-          <div class="bx-t">EKS Private Subnet • 10.143.1.0/24</div>
+          <div class="bx-t">
+            <span class="lbl-simple">App Neighborhood</span>
+            <span class="lbl-tech">EKS Private Subnet • 10.143.1.0/24</span>
+          </div>
         </div>
 
         <div class="n" id="pod-mumbai" style="left:70px;top:95px">
           <div class="ico">📦</div>
-          <div class="txt">Transaction Pod<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.143.1.58</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Transaction App</span>
+            <span class="lbl-tech">Transaction Pod<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.143.1.58</span></span>
+          </div>
         </div>
 
         <div class="n" id="db-mumbai" style="left:190px;top:95px">
           <div class="ico">🐘</div>
-          <div class="txt">RDS PG Database<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.143.2.19</span></div>
+          <div class="txt">
+            <span class="lbl-simple">RDS PG Database</span>
+            <span class="lbl-tech">RDS PG Database<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.143.2.19</span></span>
+          </div>
         </div>
 
         <div class="n" id="rt-mumbai" style="left:135px;top:260px">
           <div class="ico">🗺️</div>
-          <div class="txt">VPC Route Table<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">rtb-0df422c1</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Traffic GPS</span>
+            <span class="lbl-tech">VPC Route Table<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">rtb-0df422c1</span></span>
+          </div>
         </div>
 
         <div class="n" id="vgw-mumbai" style="left:135px;top:385px">
           <div class="ico">🔑</div>
-          <div class="txt">VGW Gateway<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vgw-0f422c60</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Customs Gate</span>
+            <span class="lbl-tech">VGW Gateway<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vgw-0f422c60</span></span>
+          </div>
         </div>
 
 
         <!-- HYDERABAD DR REGION (STANDBY) -->
         <div class="bx bx-vpc" id="vpc-hyd" style="top:20px;left:380px;width:320px;height:480px">
-          <div class="bx-t" style="color:var(--color-secondary)">VPC Hyderabad (ap-south-2) • 10.144.0.0/16</div>
+          <div class="bx-t" style="color:var(--color-secondary)">
+            <span class="lbl-simple">☁️ Hyderabad DR Stack (Backup)</span>
+            <span class="lbl-tech">VPC Hyderabad (ap-south-2) • 10.144.0.0/16</span>
+          </div>
         </div>
 
         <div class="bx bx-sub-priv" style="top:60px;left:400px;width:280px;height:170px">
-          <div class="bx-t">EKS Private Subnet • 10.144.1.0/24</div>
+          <div class="bx-t">
+            <span class="lbl-simple">DR App Neighborhood</span>
+            <span class="lbl-tech">EKS Private Subnet • 10.144.1.0/24</span>
+          </div>
         </div>
 
         <div class="n" id="pod-hyd" style="left:430px;top:95px">
           <div class="ico">📦</div>
-          <div class="txt">DR Trans Pod<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.144.1.109</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Backup Trans App</span>
+            <span class="lbl-tech">DR Trans Pod<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.144.1.109</span></span>
+          </div>
         </div>
 
         <div class="n" id="db-hyd" style="left:550px;top:95px">
           <div class="ico">🐘</div>
-          <div class="txt">DR Database (Replica)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.144.2.40</span></div>
+          <div class="txt">
+            <span class="lbl-simple">DR Database Replica</span>
+            <span class="lbl-tech">DR Database (Replica)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">10.144.2.40</span></span>
+          </div>
         </div>
 
         <div class="n" id="rt-hyd" style="left:495px;top:260px">
           <div class="ico">🗺️</div>
-          <div class="txt">VPC Route Table<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">rtb-0b1a03fc</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Backup Traffic GPS</span>
+            <span class="lbl-tech">VPC Route Table<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">rtb-0b1a03fc</span></span>
+          </div>
         </div>
 
         <div class="n" id="tgw-hyd" style="left:495px;top:385px">
           <div class="ico">🔀</div>
-          <div class="txt">Transit Gateway<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">tgw-0788737c</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Transit Hub</span>
+            <span class="lbl-tech">Transit Gateway<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">tgw-0788737c</span></span>
+          </div>
         </div>
 
 
         <!-- VPN Tunnels (Terminations) -->
         <div class="n" id="vpn-dc-tunnel" style="left:135px;top:485px">
           <div class="ico">⛓️</div>
-          <div class="txt">IPSec VPN (DC)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vpn-01330e99</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Secure Secret Tunnel</span>
+            <span class="lbl-tech">IPSec VPN (DC)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vpn-01330e99</span></span>
+          </div>
         </div>
 
         <div class="n" id="vpn-dr-tunnel" style="left:495px;top:485px">
           <div class="ico">⛓️</div>
-          <div class="txt">IPSec VPN (DR)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vpn-01d7091b</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Backup Secret Tunnel</span>
+            <span class="lbl-tech">IPSec VPN (DR)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">vpn-01d7091b</span></span>
+          </div>
         </div>
 
 
         <!-- YESBANK INFRASTRUCTURE TARGETS -->
         <div class="bx bx-bank" style="top:585px;left:20px;width:320px;height:120px">
-          <div class="bx-t" style="color:var(--color-warning)">YesBank Data Center (DC) - Primary</div>
+          <div class="bx-t" style="color:var(--color-warning)">
+            <span class="lbl-simple">🏦 Yes Bank Headquarters (Active)</span>
+            <span class="lbl-tech">YesBank Data Center (DC) - Primary</span>
+          </div>
         </div>
         
         <div class="n" id="cgw-dc" style="left:50px;top:605px">
           <div class="ico">🚪</div>
-          <div class="txt">Bank CGW Firewall</div>
+          <div class="txt">
+            <span class="lbl-simple">Security Checkpoint</span>
+            <span class="lbl-tech">Bank CGW Firewall</span>
+          </div>
         </div>
 
         <div class="n" id="server-alpha" style="left:190px;top:605px">
           <div class="ico">🏦</div>
-          <div class="txt">Alpha Server (Primary)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">172.27.76.227:6022</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Main Transaction Vault</span>
+            <span class="lbl-tech">Alpha Server (Primary)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">172.27.76.227:6022</span></span>
+          </div>
         </div>
 
         <div class="bx bx-bank" style="top:585px;left:380px;width:320px;height:120px">
-          <div class="bx-t" style="color:var(--color-warning)">YesBank Disaster Recovery (DR) - Standby</div>
+          <div class="bx-t" style="color:var(--color-warning)">
+            <span class="lbl-simple">🏦 Yes Bank Backup Site (DR)</span>
+            <span class="lbl-tech">YesBank Disaster Recovery (DR) - Standby</span>
+          </div>
         </div>
         
         <div class="n" id="cgw-dr" style="left:410px;top:605px">
           <div class="ico">🚪</div>
-          <div class="txt">Bank DR CGW</div>
+          <div class="txt">
+            <span class="lbl-simple">DR Security Checkpoint</span>
+            <span class="lbl-tech">Bank DR CGW</span>
+          </div>
         </div>
 
         <div class="n" id="server-bravo" style="left:550px;top:605px">
           <div class="ico">🏦</div>
-          <div class="txt">Bravo Server (Standby)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">172.27.76.227:6022</span></div>
+          <div class="txt">
+            <span class="lbl-simple">Backup Transaction Vault</span>
+            <span class="lbl-tech">Bravo Server (Standby)<br><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--color-text-muted)">172.27.76.227:6022</span></span>
+          </div>
         </div>
 
         <!-- The Glowing Packet Light -->
@@ -910,6 +982,7 @@
     const tabAnalogy = document.getElementById('tab-analogy');
     const tabTech = document.getElementById('tab-tech');
     const simBtn = document.getElementById('simBtn');
+    const diaViewport = document.getElementById('dia');
 
     // Switch States
     btnMumbai.addEventListener('click', () => {
@@ -934,19 +1007,33 @@
       drawLines();
     });
 
-    // Switch Tabs
+    // Switch Tabs / Toggle Diagram Layouts
     tabAnalogy.addEventListener('click', () => {
+      if (running) stopSimulation();
       activeTab = 'analogy';
       tabAnalogy.classList.add('active');
       tabTech.classList.remove('active');
+      
+      // Toggle diagram view layout classes
+      diaViewport.classList.remove('view-tech');
+      diaViewport.classList.add('view-simple');
+
       updateUI();
+      drawLines();
     });
 
     tabTech.addEventListener('click', () => {
+      if (running) stopSimulation();
       activeTab = 'tech';
       tabTech.classList.add('active');
       tabAnalogy.classList.remove('active');
+
+      // Toggle diagram view layout classes
+      diaViewport.classList.remove('view-simple');
+      diaViewport.classList.add('view-tech');
+
       updateUI();
+      drawLines();
     });
 
     // Flow Paths
@@ -1064,7 +1151,7 @@
           a_t: 'Central Transit Hub', 
           a_d: 'The Transit Gateway acts as a central airport hub connecting multiple islands and tunnels together. It encrypts the traffic and maps it to the DR tunnel.', 
           t_d: 'Regional Transit Gateway acting as a network hub. Peered with static S2S VPN attachment to redirect packets to YesBank DR sites.', 
-          m: ['tgw-0788737ce92f63b64', 'TGW Routing Domain'],
+          m: ['tgw-0788737c', 'TGW Routing Domain'],
           t_meta: [
             ['TGW Attachment', 'tgw-attach-06a123 (VPC ap-south-2 Subnets mapping)'],
             ['TGW Route Table', 'tgw-rt-0b41aa ➔ Static route mapping'],
@@ -1208,15 +1295,19 @@
       const svg = document.getElementById('svg');
       let html = '';
 
-      // Static connections
+      // Static connections (exclude DB nodes in Simple Mode)
       const staticPairs = [
         ['pod-mumbai', 'rt-mumbai'],
-        ['db-mumbai', 'rt-mumbai'],
         ['pod-hyd', 'rt-hyd'],
-        ['db-hyd', 'rt-hyd'],
         ['cgw-dc', 'server-alpha'],
         ['cgw-dr', 'server-bravo']
       ];
+
+      // Only draw connections to Database nodes in Technical mode
+      if (activeTab === 'tech') {
+        staticPairs.push(['db-mumbai', 'rt-mumbai']);
+        staticPairs.push(['db-hyd', 'rt-hyd']);
+      }
 
       // Dynamic connections (routing depends on active state)
       const dynamicPairs = [];
