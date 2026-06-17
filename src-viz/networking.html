@@ -449,7 +449,7 @@
 
   /* Right panel: Details & Controller */
   .info {
-    width: 380px;
+    width: 440px;
     background: rgba(8, 12, 24, 0.95);
     backdrop-filter: blur(20px);
     border-left: 1px solid var(--border-color);
@@ -628,7 +628,28 @@
     margin-top: 0.5rem;
     font-style: italic;
     color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
   }
+
+  /* Table styling for expert metadata */
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+  }
+  .meta-table th, .meta-table td {
+    border: 1px solid var(--border-color);
+    padding: 4px 6px;
+    text-align: left;
+  }
+  .meta-table th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-primary);
+  }
+  html.light-theme .meta-table th { background: rgba(0, 0, 0, 0.03); }
 
   /* Control buttons in footer of right panel */
   .info-footer {
@@ -832,7 +853,7 @@
       <!-- Controller Header -->
       <div class="info-header">
         <h2>📡 Network Controllers</h2>
-        <p style="font-size:0.75rem;color:var(--color-text-muted)">Click a state to toggle routing tables and click Simulate below to view animated packet flow.</p>
+        <p style="font-size:0.725rem;color:var(--color-text-muted)">Click a state to toggle routing tables and click Simulate below to view animated packet flow.</p>
         
         <div class="controller-box">
           <button class="btn-region active" id="btn-mumbai">Mumbai Active</button>
@@ -843,7 +864,7 @@
       <!-- Mode Selector Tabs -->
       <div class="tab-bar">
         <button class="tab-btn active" id="tab-analogy">💡 Plain Explanation</button>
-        <button class="tab-btn" id="tab-tech">🛠️ Tech Specs</button>
+        <button class="tab-btn" id="tab-tech">🛠️ Tech Specs (Advanced)</button>
       </div>
 
       <!-- Info Content Area -->
@@ -931,20 +952,164 @@
     // Flow Paths
     const PATHS = {
       mumbai: [
-        { id: 'pod-mumbai', t: 'API Container', a_t: 'Our Server App', a_d: 'The transaction logic runs inside a secure, walled application box on our primary island (Mumbai).', t_d: 'EKS Pod running in ap-south-1 private subnet. Initiates TCP connection to YesBank Bravo/Alpha.', m: ['Pod IP: 10.143.1.58', 'Internal'] },
-        { id: 'rt-mumbai', t: 'VPC Route Table', a_t: 'Island Nav / GPS', a_d: 'The network GPS checks its map: "Ah! Traffic destined for YesBank server (172.27.76.227) must go through the VGW checkpoint."', t_d: 'VPC Route Table maps CIDR 172.27.76.227/32 -> Virtual Private Gateway (VGW).', m: ['rtb-0df422c1', 'Static Route'] },
-        { id: 'vgw-mumbai', t: 'VGW Gatekeeper', a_t: 'Border Customs Port', a_d: 'The VGW acts as the border customs gate. It gathers the data, encrypts it, and sends it down the correct secret undersea tunnel.', t_d: 'Virtual Private Gateway (vgw-0f422c60) terminates the active IPSec S2S VPN.', m: ['VGW', 'IPSec Tunnel Termination'] },
-        { id: 'vpn-dc-tunnel', t: 'IPSec Tunnel (DC)', a_t: 'Undersea Secure Pipe', a_d: 'An encrypted, armored pipeline running under the public internet directly connecting our island gate to the bank DC gate.', t_d: 'IPSec VPN Tunnel (vpn-01330e99) with IKEv2 and AES-256 encryption. BGP/Static routing.', m: ['IPSec', 'AES-256', 'State: UP'] },
-        { id: 'cgw-dc', t: 'YesBank Firewall', a_t: 'Bank Guardhouse', a_d: 'The bank’s border guard checks the incoming package, decrypts it, verifies it is coming from our trusted gateway, and allows it in.', t_d: 'Customer Gateway (CGW) firewall decapsulates IPSec and enforces traffic filters (Access Control Lists).', m: ['CGW', 'Stateful Filter'] },
-        { id: 'server-alpha', t: 'Alpha Server', a_t: 'Bank Primary Vault', a_d: 'The request is safely processed in the bank’s main transaction server (Alpha server) at their primary data center.', t_d: 'YesBank primary core application server listening on Port 6022.', m: ['IP: 172.27.76.227', 'Port: 6022', 'Alpha'] }
+        { 
+          id: 'pod-mumbai', 
+          t: 'API Container (EKS Pod)', 
+          a_t: 'Our Server App', 
+          a_d: 'The transaction logic runs inside a secure, walled application box on our primary island (Mumbai).', 
+          t_d: 'EKS Pod running transaction-svc service in private subnet. Handles payload serialization, signing, and outbound TCP session generation.', 
+          m: ['Pod IP: 10.143.1.58', 'Port: Outbound Dynamic'],
+          t_meta: [
+            ['Subnet CIDR', '10.143.1.0/24 (Private)'],
+            ['AWS CNI Interface', 'Secondary ENI Private IP (Direct mapping)'],
+            ['Egress SecGroup', 'Allow Outbound TCP/6022 to 172.27.76.227/32']
+          ]
+        },
+        { 
+          id: 'rt-mumbai', 
+          t: 'VPC Private Route Table', 
+          a_t: 'Island GPS Navigator', 
+          a_d: 'The network GPS checks its map: "Ah! Traffic destined for YesBank server (172.27.76.227) must go through the VGW checkpoint."', 
+          t_d: 'Subnet route table checks routing policies. Longest prefix match rules apply. Traffic is forwarded to VGW gateway.', 
+          m: ['rtb-0df422c1', 'Prefix: 172.27.76.227/32'],
+          t_meta: [
+            ['Destination Target', '172.27.76.227/32 ➔ vgw-0f422c60a49d3fe2c'],
+            ['Default Route', '0.0.0.0/0 ➔ nat-0123456789abcdef (Internet)'],
+            ['Local Subnets', '10.143.0.0/16 ➔ local']
+          ]
+        },
+        { 
+          id: 'vgw-mumbai', 
+          t: 'Virtual Private Gateway (VGW)', 
+          a_t: 'Border Customs Port', 
+          a_d: 'The VGW acts as the border customs gate. It gathers the data, encrypts it, and sends it down the correct secret undersea tunnel.', 
+          t_d: 'AWS Virtual Private Gateway terminates the active IPSec VPN connection. Routes are statically mapped in VPC router.', 
+          m: ['vgw-0f422c60a49d3fe2c', 'AWS VGW Stack'],
+          t_meta: [
+            ['Route Propagation', 'Static / BGP Peering (ASN 65000)'],
+            ['VPN Association', 'vpn-01330e99eb0aab4bc'],
+            ['Tunnel Target', '122.160.75.12 (Bank Outside IP)']
+          ]
+        },
+        { 
+          id: 'vpn-dc-tunnel', 
+          t: 'IPSec S2S VPN Tunnel (DC)', 
+          a_t: 'Undersea Secure Pipe', 
+          a_d: 'An encrypted, armored pipeline running under the public internet directly connecting our island gate to the bank DC gate.', 
+          t_d: 'Active site-to-site IPSec VPN connection linking AWS VGW to YesBank Primary Customer Gateway.', 
+          m: ['Phase 1: IKEv2', 'Phase 2: ESP (AES-256)', 'DPD: 30s'],
+          t_meta: [
+            ['IKEv2 SA Parameter', 'AES-256-GCM | DH-Group 14 | SHA-256'],
+            ['Tunnel IP Links', '169.254.12.1/30 (AWS) ➔ 169.254.12.2/30 (Bank)'],
+            ['MTU / MSS size', 'MTU: 1427 bytes | TCP MSS: 1379 bytes']
+          ]
+        },
+        { 
+          id: 'cgw-dc', 
+          t: 'Bank CGW Firewall', 
+          a_t: 'Bank Guardhouse', 
+          a_d: 'The bank’s border guard checks the incoming package, decrypts it, verifies it is coming from our trusted gateway, and allows it in.', 
+          t_d: 'Customer Gateway firewall terminats tunnel on the bank’s side. Applies security access-lists, decapsulates ESP payloads, and checks NAT policies.', 
+          m: ['CGW Firewall', 'TCP Syn Check', 'IP Whitelist'],
+          t_meta: [
+            ['Outside Address', '122.160.75.12 (Active CGW endpoint)'],
+            ['Ingress Filtering', 'Permit TCP from 10.143.0.0/16 to 172.27.76.227/32'],
+            ['Anti-Replay Window', 'Enabled (1024 packets)']
+          ]
+        },
+        { 
+          id: 'server-alpha', 
+          t: 'Core Alpha Host Server', 
+          a_t: 'Bank Primary Vault', 
+          a_d: 'The request is safely processed in the bank’s main transaction server (Alpha server) at their primary data center.', 
+          t_d: 'Bank core backend API/SFTP server endpoint at YesBank Primary DC.', 
+          m: ['IP: 172.27.76.227', 'Port: 6022', 'Mutual TLS'],
+          t_meta: [
+            ['Destination IP/Port', '172.27.76.227:6022 (TCP socket)'],
+            ['Authentication', 'mTLS client cert verification / SFTP SSH key'],
+            ['TCP Keep-Alives', 'TCP keep-alive: 60s (prevents tunnel connection reap)']
+          ]
+        }
       ],
       hyd: [
-        { id: 'pod-hyd', t: 'DR API Container', a_t: 'Backup App Server', a_d: 'When failover is active, the transaction logic runs inside the backup application box on our disaster recovery island (Hyderabad).', t_d: 'EKS Pod running in ap-south-2 private subnet. Triggered in failover state.', m: ['Pod IP: 10.144.1.109', 'Internal'] },
-        { id: 'rt-hyd', t: 'DR Route Table', a_t: 'Backup Island GPS', a_d: 'The backup GPS checks its map: "Traffic for YesBank (172.27.76.227) is directed through the Transit Gateway hub!"', t_d: 'VPC Route Table maps CIDR 172.27.76.227/32 -> Transit Gateway (TGW) via attachment.', m: ['rtb-0b1a03fc', 'Active Failover Route'] },
-        { id: 'tgw-hyd', t: 'Transit Gateway', a_t: 'Central Transit Hub', a_d: 'The Transit Gateway acts as a central airport hub connecting multiple islands and tunnels together. It encrypts the traffic and maps it to the DR tunnel.', t_d: 'AWS Transit Gateway (tgw-0788737c) routes traffic through S2S VPN attachment.', m: ['TGW', 'Transit Routing'] },
-        { id: 'vpn-dr-tunnel', t: 'IPSec Tunnel (DR)', a_t: 'Backup Secure Tunnel', a_d: 'A separate, dedicated secure undersea pipeline running from our backup island hub directly into the Bank’s disaster recovery vault.', t_d: 'IPSec VPN Tunnel (vpn-01d7091b) configured for DR region failover. UP during DR drills.', m: ['IPSec', 'AES-256', 'State: UP'] },
-        { id: 'cgw-dr', t: 'Bank DR Firewall', a_t: 'DR Guardhouse', a_d: 'The bank’s disaster recovery guardhouse decrypts and validates the transaction requests.', t_d: 'YesBank DR Customer Gateway firewall. Validates incoming packets.', m: ['CGW', 'DR Firewall'] },
-        { id: 'server-bravo', t: 'Bravo Server', a_t: 'Bank Backup Vault', a_d: 'The request is successfully processed in YesBank’s backup server (Bravo server) at their disaster recovery site.', t_d: 'YesBank DR core host listening on Port 6022. Responds when active.', m: ['IP: 172.27.76.227', 'Port: 6022', 'Bravo'] }
+        { 
+          id: 'pod-hyd', 
+          t: 'DR API Container (EKS Pod)', 
+          a_t: 'Backup App Server', 
+          a_d: 'When failover is active, the transaction logic runs inside the backup application box on our disaster recovery island (Hyderabad).', 
+          t_d: 'EKS Pod running in standby node replica cluster in ap-south-2. Spins up container processes and binds to VPC network overlay.', 
+          m: ['Pod IP: 10.144.1.109', 'Port: Outbound Dynamic'],
+          t_meta: [
+            ['Subnet CIDR', '10.144.1.0/24 (Private)'],
+            ['AWS CNI Interface', 'Secondary ENI Private IP (Allocated from secondary CIDR)'],
+            ['Egress SecGroup', 'Allow Outbound TCP/6022 to 172.27.76.227/32']
+          ]
+        },
+        { 
+          id: 'rt-hyd', 
+          t: 'VPC Private Route Table', 
+          a_t: 'Backup Island GPS', 
+          a_d: 'The backup GPS checks its map: "Traffic for YesBank (172.27.76.227) is directed through the Transit Gateway hub!"', 
+          t_d: 'DR VPC route table checks destination rules. Static routing override maps host IP to TGW attachment.', 
+          m: ['rtb-0b1a03fc', 'Prefix: 172.27.76.227/32'],
+          t_meta: [
+            ['Destination Target', '172.27.76.227/32 ➔ tgw-0788737ce92f63b64'],
+            ['Default Route', '0.0.0.0/0 ➔ nat-0987654321fedcba (Internet)'],
+            ['Local Subnets', '10.144.0.0/16 ➔ local']
+          ]
+        },
+        { 
+          id: 'tgw-hyd', 
+          t: 'AWS Transit Gateway (TGW)', 
+          a_t: 'Central Transit Hub', 
+          a_d: 'The Transit Gateway acts as a central airport hub connecting multiple islands and tunnels together. It encrypts the traffic and maps it to the DR tunnel.', 
+          t_d: 'Regional Transit Gateway acting as a network hub. Peered with static S2S VPN attachment to redirect packets to YesBank DR sites.', 
+          m: ['tgw-0788737ce92f63b64', 'TGW Routing Domain'],
+          t_meta: [
+            ['TGW Attachment', 'tgw-attach-06a123 (VPC ap-south-2 Subnets mapping)'],
+            ['TGW Route Table', 'tgw-rt-0b41aa ➔ Static route mapping'],
+            ['VPN Association', 'vpn-01d7091b0cf03535d']
+          ]
+        },
+        { 
+          id: 'vpn-dr-tunnel', 
+          t: 'IPSec S2S VPN Tunnel (DR)', 
+          a_t: 'Backup Secure Tunnel', 
+          a_d: 'A separate, dedicated secure undersea pipeline running from our backup island hub directly into the Bank’s disaster recovery vault.', 
+          t_d: 'Standby site-to-site IPSec VPN connection linking AWS TGW to YesBank DR Customer Gateway.', 
+          m: ['Phase 1: IKEv2', 'Phase 2: ESP (AES-256)', 'DPD: 30s'],
+          t_meta: [
+            ['IKEv2 SA Parameter', 'AES-256-GCM | DH-Group 14 | SHA-256'],
+            ['Tunnel IP Links', '169.254.13.1/30 (AWS) ➔ 169.254.13.2/30 (Bank)'],
+            ['MTU / MSS size', 'MTU: 1427 bytes | TCP MSS: 1379 bytes']
+          ]
+        },
+        { 
+          id: 'cgw-dr', 
+          t: 'Bank DR CGW Firewall', 
+          a_t: 'DR Guardhouse', 
+          a_d: 'The bank’s disaster recovery guardhouse decrypts and validates the transaction requests.', 
+          t_d: 'DR Customer Gateway firewall terminating standby IPSec link on the bank’s side. Permits ingress packets from Hyderabad VPC CIDR.', 
+          m: ['CGW DR Firewall', 'TCP Syn Check', 'IP Whitelist'],
+          t_meta: [
+            ['Outside Address', '122.170.92.40 (DR CGW endpoint)'],
+            ['Ingress Filtering', 'Permit TCP from 10.144.0.0/16 to 172.27.76.227/32'],
+            ['Anti-Replay Window', 'Enabled (1024 packets)']
+          ]
+        },
+        { 
+          id: 'server-bravo', 
+          t: 'Core Bravo Host Server', 
+          a_t: 'Bank Backup Vault', 
+          a_d: 'The request is successfully processed in YesBank’s backup server (Bravo server) at their disaster recovery site.', 
+          t_d: 'Bank DR core host server listening on port 6022. Services UPI transaction payloads during regional DR failover drills.', 
+          m: ['IP: 172.27.76.227', 'Port: 6022', 'Mutual TLS'],
+          t_meta: [
+            ['Destination IP/Port', '172.27.76.227:6022 (TCP socket)'],
+            ['Authentication', 'mTLS client cert verification / SFTP SSH key'],
+            ['TCP Keep-Alives', 'TCP keep-alive: 60s (prevents tunnel connection reap)']
+          ]
+        }
       ]
     };
 
@@ -970,10 +1135,28 @@
           `;
         } else {
           html += `
-            <div class="step-num">Step ${index + 1}</div>
+            <div class="step-num">Step ${index + 1} • Technical Specifications</div>
             <div class="step-title">${hop.t}</div>
             <div class="step-desc">${hop.t_d}</div>
-            <div class="step-badge">
+            
+            <table class="meta-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Value / Configuration Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${hop.t_meta.map(row => `
+                  <tr>
+                    <td><strong>${row[0]}</strong></td>
+                    <td><code>${row[1]}</code></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="step-badge" style="margin-top:0.75rem">
               ${hop.m.map(m => `<span>${m}</span>`).join('')}
             </div>
           `;
@@ -1199,12 +1382,12 @@
           light.style.top = (pos.y - 7) + 'px';
         }
         currentHopIndex++;
-        timer = setTimeout(runSimulationStep, 2500);
+        timer = setTimeout(runSimulationStep, 3500);
       } else {
         const prevId = flow[currentHopIndex - 1].id;
         animatePacket(prevId, hop.id, 800, () => {
           currentHopIndex++;
-          timer = setTimeout(runSimulationStep, 2500);
+          timer = setTimeout(runSimulationStep, 3500);
         });
       }
     }
