@@ -440,9 +440,9 @@
     /* Region bounding boxes */
     .region-box {
       position: absolute;
-      top: 40px;
-      width: 440px;
-      height: 620px;
+      top: 55px;
+      width: 465px;
+      height: 605px;
       border: 1.5px solid rgba(255, 255, 255, 0.03);
       border-radius: 12px;
       background: rgba(10, 15, 30, 0.25);
@@ -451,23 +451,26 @@
     }
 
     .region-mumbai {
-      left: 20px;
+      left: 10px;
       border-color: rgba(0, 245, 255, 0.06);
       box-shadow: inset 0 0 30px rgba(0, 245, 255, 0.01);
     }
 
     .region-hyderabad {
-      left: 540px;
+      left: 525px;
       border-color: rgba(157, 78, 221, 0.06);
       box-shadow: inset 0 0 30px rgba(157, 78, 221, 0.01);
     }
 
-    /* Region titles */
+    /* Region titles - absolute positioned above the boxes to prevent overlaps */
     .region-header {
+      position: absolute;
+      top: -32px;
+      left: 10px;
+      right: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
     }
 
     .region-title {
@@ -1100,6 +1103,14 @@
           <!-- H-Pods to H-S3 -->
           <path d="M 670 300 L 850 580" class="conn-path path-inactive" id="ph-pods-s3"/>
         </svg>
+
+        <!-- Traffic Start Indicators -->
+        <div class="traffic-start" style="position: absolute; left: 160px; top: 8px; width: 140px; text-align: center; font-size: 0.65rem; font-family: var(--font-mono); color: var(--color-primary); background: rgba(0, 245, 255, 0.05); border: 1px dashed rgba(0, 245, 255, 0.2); border-radius: 4px; padding: 2px 6px; z-index: 10;">
+          📱 User Transactions
+        </div>
+        <div class="traffic-start" style="position: absolute; left: 700px; top: 8px; width: 140px; text-align: center; font-size: 0.65rem; font-family: var(--font-mono); color: var(--color-secondary); background: rgba(157, 78, 221, 0.05); border: 1px dashed rgba(157, 78, 221, 0.2); border-radius: 4px; padding: 2px 6px; z-index: 10;">
+          📱 User Transactions
+        </div>
 
         <!-- Mumbai Region (ap-south-1) -->
         <div class="region-box region-mumbai" id="reg-mum">
